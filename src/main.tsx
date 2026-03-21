@@ -16,8 +16,15 @@ const Main = () => {
       .init({
         onLoad: "check-sso",
       })
-      .then(() => {
+      .then((authenticated) => {
         setKeycloakInitialized(true);
+        if (authenticated) {
+          console.log("Access Token: ", keycloak.token);
+        } else {
+          console.log("User is not authenticated. Token is undefined.");
+          // uncomment the line below if you want to force login immediately
+          keycloak.login();
+        }
       })
       .catch((err) => {
         console.error("Authenticated Failed", err);
@@ -25,6 +32,7 @@ const Main = () => {
   }, []);
 
   if (!keycloakInitialized) {
+
     return (
       <div
         style={{

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, Cctv } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, Cctv, User } from 'lucide-react';
 import styles from './Home.module.css';
 
 const cameras = [
@@ -13,6 +14,7 @@ const cameras = [
 ];
 
 const Home: React.FC = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'Cameras' | 'Sequences'>('Cameras');
     const [controlMode, setControlMode] = useState(false);
 
@@ -66,17 +68,25 @@ const Home: React.FC = () => {
             {/* Main Content */}
             <div className={styles.mainContent}>
                 <div className={styles.topBar}>
-                    <label className={styles.controlModeSwitch}>
-                        <div className={styles.switch}>
-                            <input
-                                type="checkbox"
-                                checked={controlMode}
-                                onChange={(e) => setControlMode(e.target.checked)}
-                            />
-                            <span className={styles.slider}></span>
-                        </div>
-                        Control Mode
-                    </label>
+                    <div className={styles.topBarLeft}>
+                        <label className={styles.controlModeSwitch}>
+                            <div className={styles.switch}>
+                                <input
+                                    type="checkbox"
+                                    checked={controlMode}
+                                    onChange={(e) => setControlMode(e.target.checked)}
+                                />
+                                <span className={styles.slider}></span>
+                            </div>
+                            Control Mode
+                        </label>
+                    </div>
+                    <div className={styles.topBarRight}>
+                        <button className={styles.profileBtn} onClick={() => navigate('/profile')}>
+                            <User size={18} />
+                            <span>Profile</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div className={styles.videoGrid}>

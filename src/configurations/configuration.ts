@@ -1,14 +1,14 @@
 export const CONFIG = {
-    API_GATEWAY: "http://localhost:8080/",
+    API_GATEWAY: "http://localhost:8080/cctv-core",
 };
 
 export const API = {
-    REGISTRATION: "/register",
-    MY_PROFILE: "/my-profile",
+    REGISTRATION: "users/register",
+    MY_PROFILE: "users",
 };
 
 export const KEYCLOACK_CONFIG = {
-    url: "http://localhost:8081",
+    url: "http://localhost:8180/",
     realm: "cctv",
-    clientId: "",
+    clientId: "cctv-ui",
 };
