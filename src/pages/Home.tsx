@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, Cctv, User } from 'lucide-react';
 import styles from './Home.module.css';
+import NewCameraDialog from '../components/NewCameraDialog';
 
 const cameras = [
     { id: 1, name: 'Cam1', desc: 'NTCIP Ext RTSP' },
@@ -17,6 +18,7 @@ const Home: React.FC = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'Cameras' | 'Sequences'>('Cameras');
     const [controlMode, setControlMode] = useState(false);
+    const [isAddCameraOpen, setIsAddCameraOpen] = useState(false);
 
     return (
         <div className={styles.container}>
@@ -47,7 +49,7 @@ const Home: React.FC = () => {
                 </div>
 
                 <div className={styles.addAction}>
-                    <button className={styles.addBtn}>
+                    <button className={styles.addBtn} onClick={() => setIsAddCameraOpen(true)}>
                         <Plus size={20} />
                     </button>
                 </div>
@@ -101,6 +103,11 @@ const Home: React.FC = () => {
                     ))}
                 </div>
             </div>
+
+            {/* Dialogs */}
+            {isAddCameraOpen && (
+                <NewCameraDialog onClose={() => setIsAddCameraOpen(false)} />
+            )}
         </div>
     );
 };
