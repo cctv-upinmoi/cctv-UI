@@ -1,0 +1,160 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 20px 30px;
+    background-color: #1a1a1a;
+    border-bottom: 1px solid #333;
+}
+
+.backBtn {
+    background: none;
+    border: none;
+    color: #a0a0a0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.backBtn:hover {
+    color: #fff;
+    background-color: #333;
+}
+
+.title {
+    margin: 0 0 0 20px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    flex: 1;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+}
+
+.addUserBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #1976d2;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.addUserBtn:hover {
+    background-color: #1565c0;
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    overflow-y: auto;
+}
+
+.profileCard {
+    background-color: #1e1e1e;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.avatarSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 20px;
+    background: linear-gradient(135deg, #2c3e50 0%, #1a1a1a 100%);
+    border-bottom: 1px solid #333;
+}
+
+.avatar {
+    width: 100px;
+    height: 100px;
+    background-color: #1976d2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+}
+
+.userName {
+    margin: 0 0 8px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.userStatus {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.detailsSection {
+    padding: 30px;
+}
+
+.detailItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.detailItem:last-child {
+    margin-bottom: 0;
+}
+
+.detailIcon {
+    color: #888;
+    margin-right: 20px;
+    width: 24px;
+}
+
+.detailInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.detailInfo label {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.detailInfo span {
+    font-size: 1rem;
+    color: #e0e0e0;
+}
