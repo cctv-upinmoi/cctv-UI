@@ -1,0 +1,363 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+
+.dialog {
+  background: #fff;
+  border-radius: 10px;
+  width: 1000px;
+  max-width: 97vw;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.headerIcon {
+  color: #fff;
+  background: #1976d2;
+  border-radius: 50%;
+  padding: 4px;
+  margin-right: 12px;
+  display: flex;
+}
+
+.title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.closeBtn:hover { color: #000; }
+
+/* ── Body ── */
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Canvas area */
+.canvasWrapper {
+  flex: 1;
+  position: relative;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.snapshot {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: default;
+}
+
+.canvasActive {
+  cursor: crosshair;
+}
+
+.snapshotError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-size: 14px;
+  padding: 32px;
+  text-align: center;
+}
+
+.snapshotLoading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-size: 13px;
+}
+
+/* ── Right panel ── */
+.panel {
+  width: 260px;
+  min-width: 260px;
+  border-left: 1px solid #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.panelSection {
+  padding: 16px;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.panelTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zoneBadge {
+  background: #1976d2;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 11px;
+  padding: 1px 7px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* New zone form */
+.input,
+.select {
+  width: 100%;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: #333;
+  outline: none;
+  background: #fff;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.select:focus {
+  border-color: #1976d2;
+}
+
+.input:disabled,
+.select:disabled {
+  background: #f5f5f5;
+  color: #aaa;
+}
+
+.btnDraw {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.btnDraw:hover { background: #1565c0; }
+
+/* Drawing hint */
+.drawingHint {
+  margin-top: 4px;
+}
+
+.drawingBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ef4444;
+  margin-bottom: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: blink 1s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hintList {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 11px;
+  color: #666;
+  line-height: 1.8;
+}
+
+/* Zone list */
+.emptyZones {
+  font-size: 12px;
+  color: #bbb;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.zoneItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.zoneItem:last-child { border-bottom: none; }
+
+.zoneDisabled { opacity: 0.5; }
+
+.zoneColorDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.zoneInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.zoneName {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zoneTypeBadge {
+  font-size: 10px;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 3px;
+  color: #777;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.iconBtn:hover {
+  background: #ebebeb;
+  color: #333;
+}
+
+.iconBtnDanger:hover {
+  background: #fde8e8;
+  color: #d32f2f;
+}
+
+/* Error */
+.errorMsg {
+  margin: 10px 16px;
+  padding: 8px 12px;
+  background: #fff3f3;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #d32f2f;
+}
+
+/* ── Footer ── */
+.footer {
+  padding: 14px 20px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn {
+  padding: 8px 18px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btnSave {
+  background: #1976d2;
+  color: #fff;
+}
+
+.btnSave:hover:not(:disabled) { background: #1565c0; }
+
+.btnCancel {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btnCancel:hover:not(:disabled) { background: #e0e0e0; }

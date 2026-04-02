@@ -1,67 +1,64 @@
 import React, { useState } from 'react';
 import { X, Cctv } from 'lucide-react';
 import styles from './NewCameraDialog.module.css';
-import { addCamera } from '../services/cameraService';
-import type { AddCameraReq } from '../types/camera';
+import { updateCamera } from '../services/cameraService';
+import type { CameraRes, UpdateCameraReq } from '../types/camera';
 
-interface NewCameraDialogProps {
+interface EditCameraDialogProps {
+    camera: CameraRes;
     onClose: () => void;
-    onCreated: () => void;
+    onUpdated: () => void;
 }
 
-const defaultForm: AddCameraReq = {
-    name: '',
-    ip: '',
-    port: undefined,
-    username: '',
-    pwd: '',
-    mode: 'RTSP',
-    rtspStreamUrl: '',
-    latitude: undefined,
-    longitude: undefined,
-    locationDetail: {
-        address: '',
-        ward: '',
-        district: '',
-        province: '',
-        description: '',
-    },
-};
-
-const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated }) => {
+const EditCameraDialog: React.FC<EditCameraDialogProps> = ({ camera, onClose, onUpdated }) => {
     const [activeTab, setActiveTab] = useState<'General' | 'Connection'>('General');
-    const [form, setForm] = useState<AddCameraReq>(defaultForm);
+    const [form, setForm] = useState<UpdateCameraReq>({
+        cameraId: camera.id,
+        name: camera.name,
+        ip: camera.ip,
+        port: camera.port,
+        username: camera.username,
+        pwd: '',
+        mode: camera.mode,
+        rtspStreamUrl: camera.rtspStreamUrl ?? '',
+        latitude: camera.latitude,
+        longitude: camera.longitude,
+        locationDetail: camera.locationDetail
+            ? { ...camera.locationDetail }
+            : { address: '', province: '', ward: '', district: '', description: '' },
+    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const setField = (field: keyof AddCameraReq, value: string | number | undefined) => {
+    const setField = (field: keyof UpdateCameraReq, value: string | number | undefined) => {
         setForm(prev => ({ ...prev, [field]: value }));
     };
 
-    const setLocationField = (field: keyof AddCameraReq['locationDetail'], value: string) => {
+    const setLocationField = (field: string, value: string) => {
         setForm(prev => ({
             ...prev,
-            locationDetail: { ...prev.locationDetail, [field]: value },
+            locationDetail: { ...prev.locationDetail!, [field]: value },
         }));
     };
 
-    const handleCreate = async () => {
+    const handleSave = async () => {
         setError(null);
-        if (!form.name.trim()) { setError('Tên camera là bắt buộc.'); setActiveTab('General'); return; }
-        if (!form.ip.trim()) { setError('Địa chỉ IP là bắt buộc.'); setActiveTab('Connection'); return; }
-        if (!form.username.trim()) { setError('Username là bắt buộc.'); setActiveTab('Connection'); return; }
-        if (!form.pwd.trim()) { setError('Password là bắt buộc.'); setActiveTab('Connection'); return; }
-        if (!form.locationDetail.address.trim()) { setError('Địa chỉ là bắt buộc.'); setActiveTab('General'); return; }
-        if (!form.locationDetail.province.trim()) { setError('Tỉnh/Thành phố là bắt buộc.'); setActiveTab('General'); return; }
+        if (!form.name?.trim()) { setError('Tên camera là bắt buộc.'); setActiveTab('General'); return; }
+        if (!form.ip?.trim()) { setError('Địa chỉ IP là bắt buộc.'); setActiveTab('Connection'); return; }
+        if (!form.locationDetail?.address?.trim()) { setError('Địa chỉ là bắt buộc.'); setActiveTab('General'); return; }
+        if (!form.locationDetail?.province?.trim()) { setError('Tỉnh/Thành phố là bắt buộc.'); setActiveTab('General'); return; }
+
+        const payload: UpdateCameraReq = { ...form };
+        if (!payload.pwd?.trim()) delete payload.pwd;
 
         setLoading(true);
         try {
-            await addCamera(form);
-            onCreated();
+            await updateCamera(payload);
+            onUpdated();
             onClose();
         } catch (err: unknown) {
             const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-            setError(message || 'Không thể thêm camera. Vui lòng thử lại.');
+            setError(message || 'Không thể cập nhật camera. Vui lòng thử lại.');
         } finally {
             setLoading(false);
         }
@@ -75,7 +72,7 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                     <div className={styles.headerIcon}>
                         <Cctv size={18} />
                     </div>
-                    <div className={styles.title}>New Camera</div>
+                    <div className={styles.title}>Edit Camera</div>
                     <button className={styles.closeButton} onClick={onClose}>
                         <X size={20} />
                     </button>
@@ -83,7 +80,6 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
 
                 {/* Content */}
                 <div className={styles.content}>
-                    {/* Tabs */}
                     <div className={styles.tabs}>
                         <div
                             className={`${styles.tab} ${activeTab === 'General' ? styles.active : ''}`}
@@ -109,12 +105,12 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                     {activeTab === 'General' && (
                         <div className={styles.tabPanel}>
                             <div className={styles.row}>
-                                <div className={styles.field} style={{ flex: 1 }}>
+                                <div className={styles.field}>
                                     <label>Name <span className={styles.required}>*</span></label>
                                     <input
                                         type="text"
                                         className={styles.input}
-                                        value={form.name}
+                                        value={form.name ?? ''}
                                         onChange={e => setField('name', e.target.value)}
                                     />
                                 </div>
@@ -127,7 +123,7 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                                     <input
                                         type="text"
                                         className={styles.input}
-                                        value={form.locationDetail.address}
+                                        value={form.locationDetail?.address ?? ''}
                                         onChange={e => setLocationField('address', e.target.value)}
                                     />
                                 </div>
@@ -136,7 +132,7 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                                     <input
                                         type="text"
                                         className={styles.input}
-                                        value={form.locationDetail.province}
+                                        value={form.locationDetail?.province ?? ''}
                                         onChange={e => setLocationField('province', e.target.value)}
                                     />
                                 </div>
@@ -147,7 +143,7 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                                     <input
                                         type="text"
                                         className={styles.input}
-                                        value={form.locationDetail.district}
+                                        value={form.locationDetail?.district ?? ''}
                                         onChange={e => setLocationField('district', e.target.value)}
                                     />
                                 </div>
@@ -156,7 +152,7 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                                     <input
                                         type="text"
                                         className={styles.input}
-                                        value={form.locationDetail.ward}
+                                        value={form.locationDetail?.ward ?? ''}
                                         onChange={e => setLocationField('ward', e.target.value)}
                                     />
                                 </div>
@@ -187,7 +183,7 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                                 <div className={styles.field}>
                                     <textarea
                                         className={styles.textarea}
-                                        value={form.locationDetail.description}
+                                        value={form.locationDetail?.description ?? ''}
                                         onChange={e => setLocationField('description', e.target.value)}
                                     />
                                 </div>
@@ -200,10 +196,10 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                         <div className={styles.tabPanel}>
                             <div className={styles.row}>
                                 <div className={styles.field} style={{ flex: 1, maxWidth: 200 }}>
-                                    <label>Protocol <span className={styles.required}>*</span></label>
+                                    <label>Protocol</label>
                                     <select
                                         className={styles.select}
-                                        value={form.mode}
+                                        value={form.mode ?? 'RTSP'}
                                         onChange={e => setField('mode', e.target.value)}
                                     >
                                         <option value="RTSP">RTSP</option>
@@ -217,7 +213,7 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                                     <input
                                         type="text"
                                         className={styles.input}
-                                        value={form.ip}
+                                        value={form.ip ?? ''}
                                         onChange={e => setField('ip', e.target.value)}
                                     />
                                 </div>
@@ -234,20 +230,20 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
 
                             <div className={styles.row}>
                                 <div className={styles.field}>
-                                    <label>Username <span className={styles.required}>*</span></label>
+                                    <label>Username</label>
                                     <input
                                         type="text"
                                         className={styles.input}
-                                        value={form.username}
+                                        value={form.username ?? ''}
                                         onChange={e => setField('username', e.target.value)}
                                     />
                                 </div>
                                 <div className={styles.field}>
-                                    <label>Password <span className={styles.required}>*</span></label>
+                                    <label>Password <span style={{ color: '#888', fontSize: 11 }}>(để trống nếu không đổi)</span></label>
                                     <input
                                         type="password"
                                         className={styles.input}
-                                        value={form.pwd}
+                                        value={form.pwd ?? ''}
                                         onChange={e => setField('pwd', e.target.value)}
                                     />
                                 </div>
@@ -260,7 +256,7 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                                         type="text"
                                         className={styles.input}
                                         placeholder="rtsp://..."
-                                        value={form.rtspStreamUrl}
+                                        value={form.rtspStreamUrl ?? ''}
                                         onChange={e => setField('rtspStreamUrl', e.target.value)}
                                     />
                                 </div>
@@ -273,10 +269,10 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
                 <div className={styles.footer}>
                     <button
                         className={`${styles.btn} ${styles.btnCreate}`}
-                        onClick={handleCreate}
+                        onClick={handleSave}
                         disabled={loading}
                     >
-                        {loading ? 'Đang tạo...' : 'Create'}
+                        {loading ? 'Đang lưu...' : 'Save'}
                     </button>
                     <button className={`${styles.btn} ${styles.btnCancel}`} onClick={onClose} disabled={loading}>
                         Cancel
@@ -287,4 +283,4 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
     );
 };
 
-export default NewCameraDialog;
+export default EditCameraDialog;

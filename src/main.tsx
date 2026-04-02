@@ -15,6 +15,7 @@ const Main = () => {
     keycloak
       .init({
         onLoad: "check-sso",
+        checkLoginIframe: false,
       })
       .then((authenticated) => {
         setKeycloakInitialized(true);
@@ -23,7 +24,7 @@ const Main = () => {
         } else {
           console.log("User is not authenticated. Token is undefined.");
           // uncomment the line below if you want to force login immediately
-          keycloak.login();
+          // keycloak.login();
         }
       })
       .catch((err) => {
