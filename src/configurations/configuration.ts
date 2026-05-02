@@ -1,6 +1,8 @@
 export const CONFIG = {
     API_GATEWAY: "http://localhost:8080/cctv-core",
-    GO2RTC_URL: "http://localhost:1984",
+    GO2RTC_URL:  "http://localhost:1984",
+    // WebSocket STOMP endpoint (context-path: /cctv-core)
+    WS_URL:      "ws://localhost:8080/cctv-core/ws",
 };
 
 export const API = {
@@ -12,5 +14,5 @@ export const API = {
 export const KEYCLOACK_CONFIG = {
     url: "http://localhost:8081/",
     realm: "cctv",
-    clientId: "cctv_web",
+    clientId: "cctv-app",
 };

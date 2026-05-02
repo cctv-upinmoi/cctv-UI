@@ -1,14 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, ShieldX, Cctv, User, Pencil, Trash2, MapPin } from 'lucide-react';
+import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, ShieldX, Cctv, User, Pencil, Trash2, MapPin, X, Wifi, WifiOff, LogOut } from 'lucide-react';
 import styles from './Home.module.css';
 import NewCameraDialog from '../components/NewCameraDialog';
 import EditCameraDialog from '../components/EditCameraDialog';
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog';
 import ZoneEditorDialog from '../components/ZoneEditorDialog';
+import IntrusionAlertToast from '../components/IntrusionAlertToast';
+import CameraStreamCell from '../components/CameraStreamCell';
 import { getAllCameras } from '../services/cameraService';
+import { logOut } from '../services/authService';
+import { useIntrusionAlert } from '../hooks/useIntrusionAlert';
 import type { CameraRes } from '../types/camera';
 import type { ApiResponse } from '../types/common';
+
+const GRID_SIZE = 4;
 
 const Home: React.FC = () => {
     const navigate = useNavigate();
@@ -21,6 +27,11 @@ const Home: React.FC = () => {
     const [cameras, setCameras] = useState<CameraRes[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
+    const [selectedCameras, setSelectedCameras] = useState<(CameraRes | null)[]>(
+        Array(GRID_SIZE).fill(null)
+    );
+
+    const { alerts, connected, dismissAlert, clearAll } = useIntrusionAlert();
 
     const fetchCameras = useCallback(async () => {
         setLoading(true);
@@ -44,8 +55,43 @@ const Home: React.FC = () => {
         c.ip.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const handleCameraClick = (camera: CameraRes) => {
+        setSelectedCameras(prev => {
+            const existingIdx = prev.findIndex(c => c?.id === camera.id);
+            if (existingIdx !== -1) {
+                // Camera đang active → bỏ ra khỏi grid
+                const next = [...prev];
+                next[existingIdx] = null;
+                return next;
+            }
+            // Tìm ô trống đầu tiên
+            const emptyIdx = prev.findIndex(c => c === null);
+            if (emptyIdx === -1) return prev; // grid đầy, bỏ qua
+            const next = [...prev];
+            next[emptyIdx] = camera;
+            return next;
+        });
+    };
+
+    const removeFromSlot = (slotIdx: number) => {
+        setSelectedCameras(prev => {
+            const next = [...prev];
+            next[slotIdx] = null;
+            return next;
+        });
+    };
+
+    const isCameraActive = (camera: CameraRes) =>
+        selectedCameras.some(c => c?.id === camera.id);
+
     return (
         <div className={styles.container}>
+            <IntrusionAlertToast
+                alerts={alerts}
+                connected={connected}
+                onDismiss={dismissAlert}
+                onClearAll={clearAll}
+            />
             {/* Sidebar */}
             <div className={styles.sidebar}>
                 <div className={styles.tabs}>
@@ -86,7 +132,11 @@ const Home: React.FC = () => {
                         <div className={styles.emptyText}>Không có camera</div>
                     )}
                     {filteredCameras.map((camera) => (
-                        <div key={camera.id} className={styles.cameraItem}>
+                        <div
+                            key={camera.id}
+                            className={`${styles.cameraItem} ${isCameraActive(camera) ? styles.cameraItemActive : ''}`}
+                            onClick={() => handleCameraClick(camera)}
+                        >
                             {camera.status === 'OK'
                                 ? <ShieldCheck className={styles.statusIcon} size={18} />
                                 : <ShieldX className={styles.statusIconNok} size={18} />
@@ -140,21 +190,49 @@ const Home: React.FC = () => {
                         </label>
                     </div>
                     <div className={styles.topBarRight}>
+                        <div className={`${styles.statusBadge} ${connected ? styles.statusConnected : styles.statusDisconnected}`}>
+                            {connected ? <><Wifi size={12} /> Live</> : <><WifiOff size={12} /> Offline</>}
+                        </div>
                         <button className={styles.profileBtn} onClick={() => navigate('/profile')}>
                             <User size={18} />
                             <span>Profile</span>
+                        </button>
+                        <button className={styles.profileBtn} onClick={logOut}>
+                            <LogOut size={18} />
+                            <span>Logout</span>
                         </button>
                     </div>
                 </div>
 
                 <div className={styles.videoGrid}>
-                    {[1, 2, 3, 4].map((streamNum) => (
-                        <div key={streamNum} className={styles.gridCell}>
-                            <div className={styles.streamLabel}>Stream {streamNum}</div>
-                            <div className={styles.placeholder}>
-                                <Cctv className={styles.placeholderIcon} size={32} />
-                                <span className={styles.placeholderText}>Select camera to play stream</span>
-                            </div>
+                    {selectedCameras.map((camera, idx) => (
+                        <div key={idx} className={styles.gridCell}>
+                            {camera ? (
+                                <>
+                                    <div className={styles.streamLabel}>
+                                        {camera.name}
+                                        <button
+                                            className={styles.streamCloseBtn}
+                                            onClick={() => removeFromSlot(idx)}
+                                            title="Đóng stream"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                    <CameraStreamCell
+                                        cameraName={camera.name}
+                                        zones={camera.zones}
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    <div className={styles.streamLabel}>Stream {idx + 1}</div>
+                                    <div className={styles.placeholder}>
+                                        <Cctv className={styles.placeholderIcon} size={32} />
+                                        <span className={styles.placeholderText}>Select camera to play stream</span>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     ))}
                 </div>

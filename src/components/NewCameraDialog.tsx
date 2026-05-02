@@ -49,8 +49,6 @@ const NewCameraDialog: React.FC<NewCameraDialogProps> = ({ onClose, onCreated })
         setError(null);
         if (!form.name.trim()) { setError('Tên camera là bắt buộc.'); setActiveTab('General'); return; }
         if (!form.ip.trim()) { setError('Địa chỉ IP là bắt buộc.'); setActiveTab('Connection'); return; }
-        if (!form.username.trim()) { setError('Username là bắt buộc.'); setActiveTab('Connection'); return; }
-        if (!form.pwd.trim()) { setError('Password là bắt buộc.'); setActiveTab('Connection'); return; }
         if (!form.locationDetail.address.trim()) { setError('Địa chỉ là bắt buộc.'); setActiveTab('General'); return; }
         if (!form.locationDetail.province.trim()) { setError('Tỉnh/Thành phố là bắt buộc.'); setActiveTab('General'); return; }
 

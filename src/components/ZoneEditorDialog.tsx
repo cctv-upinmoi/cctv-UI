@@ -4,6 +4,7 @@ import styles from './ZoneEditorDialog.module.css';
 import { updateZone } from '../services/cameraService';
 import type { CameraRes, Zone } from '../types/camera';
 import { CONFIG } from '../configurations/configuration';
+import { videoContentRect } from '../utils/videoRect';
 
 const ZONE_COLORS: Record<string, { fill: string; stroke: string }> = {
     INTRUSION: { fill: 'rgba(239,68,68,0.25)', stroke: '#ef4444' },
@@ -28,17 +29,39 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
     const [drawingPoints, setDrawingPoints] = useState<Point[]>([]);
     const [mousePos, setMousePos] = useState<Point | null>(null);
     const [newZoneName, setNewZoneName] = useState('');
-    const [newZoneType, setNewZoneType] = useState<Zone['type']>('INTRUSION');
+    const newZoneType: Zone['type'] = 'INTRUSION';
     const [imgLoaded, setImgLoaded] = useState(false);
     const [snapshotError, setSnapshotError] = useState(false);
+    const [snapshotBlobUrl, setSnapshotBlobUrl] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // Natural video frame dimensions — used for correct coordinate mapping
+    const [natW, setNatW] = useState(0);
+    const [natH, setNatH] = useState(0);
 
-    // TODO: remove mock — replace with go2rtc live snapshot
-    const USE_MOCK = true;
-    const snapshotUrl = USE_MOCK
-        ? '/mock-snapshot.jpg'
-        : `${CONFIG.GO2RTC_URL}/api/frame.jpeg?src=${encodeURIComponent(camera.name)}&_t=${Date.now()}`;
+    useEffect(() => {
+        const url = `${CONFIG.GO2RTC_URL}/api/frame.jpeg?src=${encodeURIComponent(camera.name)}`;
+        const controller = new AbortController();
+        let blobUrl: string | null = null;
+
+        fetch(url, { signal: controller.signal })
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.blob();
+            })
+            .then(blob => {
+                blobUrl = URL.createObjectURL(blob);
+                setSnapshotBlobUrl(blobUrl);
+            })
+            .catch(err => {
+                if (err.name !== 'AbortError') setSnapshotError(true);
+            });
+
+        return () => {
+            controller.abort();
+            if (blobUrl) URL.revokeObjectURL(blobUrl);
+        };
+    }, [camera.name]);
 
     // ─── Canvas Drawing ────────────────────────────────────────────────────────
 
@@ -52,15 +75,18 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
         const { width, height } = canvas;
         ctx.clearRect(0, 0, width, height);
 
-        // Draw completed zones
+        // Video content rect within canvas (accounts for object-fit: contain letterboxing)
+        const vr = videoContentRect(width, height, natW, natH);
+
+        // Draw completed zones — coordinates are in video frame space [0,1]
         zones.forEach(zone => {
             if (zone.points.length < 3) return;
             const colors = ZONE_COLORS[zone.type] ?? ZONE_COLORS.INTRUSION;
 
             ctx.beginPath();
             zone.points.forEach(([nx, ny], i) => {
-                const px = nx * width;
-                const py = ny * height;
+                const px = vr.x + nx * vr.w;
+                const py = vr.y + ny * vr.h;
                 i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
             });
             ctx.closePath();
@@ -70,20 +96,18 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Zone label at centroid
-            const cx = zone.points.reduce((s, [x]) => s + x * width, 0) / zone.points.length;
-            const cy = zone.points.reduce((s, [, y]) => s + y * height, 0) / zone.points.length;
+            const cx = zone.points.reduce((s, [x]) => s + vr.x + x * vr.w, 0) / zone.points.length;
+            const cy = zone.points.reduce((s, [, y]) => s + vr.y + y * vr.h, 0) / zone.points.length;
             ctx.font = 'bold 12px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            // text shadow
             ctx.fillStyle = 'rgba(0,0,0,0.6)';
             ctx.fillText(zone.name, cx + 1, cy + 1);
             ctx.fillStyle = zone.enabled ? colors.stroke : '#999';
             ctx.fillText(zone.name, cx, cy);
         });
 
-        // Draw in-progress polygon
+        // Draw in-progress polygon (canvas pixel coords)
         if (isDrawing && drawingPoints.length > 0) {
             const colors = ZONE_COLORS[newZoneType] ?? ZONE_COLORS.INTRUSION;
             const previewPts = mousePos ? [...drawingPoints, mousePos] : drawingPoints;
@@ -96,7 +120,6 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Draw vertices
             drawingPoints.forEach(({ x, y }, i) => {
                 const isFirst = i === 0;
                 ctx.beginPath();
@@ -107,7 +130,6 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
                 ctx.lineWidth = 2;
                 ctx.stroke();
 
-                // Highlight first point when close enough to close
                 if (isFirst && mousePos) {
                     const dist = Math.sqrt((mousePos.x - x) ** 2 + (mousePos.y - y) ** 2);
                     if (dist < 15 && drawingPoints.length >= 3) {
@@ -120,7 +142,7 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
                 }
             });
         }
-    }, [zones, isDrawing, drawingPoints, mousePos, newZoneType, imgLoaded]);
+    }, [zones, isDrawing, drawingPoints, mousePos, newZoneType, imgLoaded, natW, natH]);
 
     useEffect(() => { draw(); }, [draw]);
 
@@ -140,7 +162,6 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
         return () => window.removeEventListener('resize', syncCanvasSize);
     }, [imgLoaded, syncCanvasSize]);
 
-    // ESC cancels drawing
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape' && isDrawing) {
@@ -166,10 +187,12 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
     };
 
     const finishPolygon = (points: Point[]) => {
-        const { width, height } = canvasRef.current!;
+        const canvas = canvasRef.current!;
+        // Normalize relative to video content rect (not full canvas)
+        const vr = videoContentRect(canvas.width, canvas.height, natW, natH);
         const normalized: [number, number][] = points.map(({ x, y }) => [
-            parseFloat((x / width).toFixed(4)),
-            parseFloat((y / height).toFixed(4)),
+            parseFloat(((x - vr.x) / vr.w).toFixed(4)),
+            parseFloat(((y - vr.y) / vr.h).toFixed(4)),
         ]);
         setZones(prev => [...prev, {
             name: newZoneName.trim() || `Zone ${prev.length + 1}`,
@@ -184,7 +207,6 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
 
     const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!isDrawing) return;
-        // ignore right-click
         if (e.button !== 0) return;
         const pt = getPoint(e);
         if (nearFirstPoint(pt)) {
@@ -197,7 +219,6 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
     const handleDoubleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!isDrawing || drawingPoints.length < 3) return;
         e.preventDefault();
-        // double-click fires click twice — strip the last duplicate point
         finishPolygon(drawingPoints.slice(0, -1));
     };
 
@@ -245,16 +266,13 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
     return (
         <div className={styles.backdrop}>
             <div className={styles.dialog}>
-                {/* Header */}
                 <div className={styles.header}>
                     <div className={styles.headerIcon}><MapPin size={18} /></div>
                     <div className={styles.title}>Zone Editor — {camera.name}</div>
                     <button className={styles.closeBtn} onClick={onClose}><X size={20} /></button>
                 </div>
 
-                {/* Body */}
                 <div className={styles.body}>
-                    {/* Canvas */}
                     <div className={styles.canvasWrapper}>
                         {snapshotError ? (
                             <div className={styles.snapshotError}>
@@ -268,10 +286,17 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
                             <>
                                 <img
                                     ref={imgRef}
-                                    src={snapshotUrl}
+                                    src={snapshotBlobUrl ?? undefined}
                                     alt="camera snapshot"
                                     className={styles.snapshot}
-                                    onLoad={() => setImgLoaded(true)}
+                                    onLoad={() => {
+                                        const img = imgRef.current;
+                                        if (img) {
+                                            setNatW(img.naturalWidth);
+                                            setNatH(img.naturalHeight);
+                                        }
+                                        setImgLoaded(true);
+                                    }}
                                     onError={() => setSnapshotError(true)}
                                     draggable={false}
                                 />
@@ -290,9 +315,7 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
                         )}
                     </div>
 
-                    {/* Right panel */}
                     <div className={styles.panel}>
-                        {/* Add zone */}
                         <div className={styles.panelSection}>
                             <div className={styles.panelTitle}>Thêm vùng mới</div>
                             <input
@@ -302,16 +325,6 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
                                 onChange={e => setNewZoneName(e.target.value)}
                                 disabled={isDrawing}
                             />
-                            <select
-                                className={styles.select}
-                                value={newZoneType}
-                                onChange={e => setNewZoneType(e.target.value as Zone['type'])}
-                                disabled={isDrawing}
-                            >
-                                <option value="INTRUSION">Xâm nhập (INTRUSION)</option>
-                                <option value="LOITERING">Lảng vảng (LOITERING)</option>
-                                <option value="LINE_CROSSING">Vượt ranh giới (LINE_CROSSING)</option>
-                            </select>
 
                             {!isDrawing ? (
                                 <button className={styles.btnDraw} onClick={startDrawing}>
@@ -332,7 +345,6 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
                             )}
                         </div>
 
-                        {/* Zone list */}
                         <div className={styles.panelSection} style={{ flex: 1, overflowY: 'auto' }}>
                             <div className={styles.panelTitle}>
                                 Danh sách vùng
@@ -352,18 +364,10 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
                                                 {zone.type}
                                             </span>
                                         </div>
-                                        <button
-                                            className={styles.iconBtn}
-                                            title={zone.enabled ? 'Tắt vùng' : 'Bật vùng'}
-                                            onClick={() => toggleZone(i)}
-                                        >
+                                        <button className={styles.iconBtn} title={zone.enabled ? 'Tắt vùng' : 'Bật vùng'} onClick={() => toggleZone(i)}>
                                             {zone.enabled ? <Eye size={13} /> : <EyeOff size={13} />}
                                         </button>
-                                        <button
-                                            className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                                            title="Xóa vùng"
-                                            onClick={() => removeZone(i)}
-                                        >
+                                        <button className={`${styles.iconBtn} ${styles.iconBtnDanger}`} title="Xóa vùng" onClick={() => removeZone(i)}>
                                             <Trash2 size={13} />
                                         </button>
                                     </div>
@@ -375,20 +379,11 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
                     </div>
                 </div>
 
-                {/* Footer */}
                 <div className={styles.footer}>
-                    <button
-                        className={`${styles.btn} ${styles.btnSave}`}
-                        onClick={handleSave}
-                        disabled={saving || isDrawing}
-                    >
+                    <button className={`${styles.btn} ${styles.btnSave}`} onClick={handleSave} disabled={saving || isDrawing}>
                         {saving ? 'Đang lưu...' : 'Lưu zones'}
                     </button>
-                    <button
-                        className={`${styles.btn} ${styles.btnCancel}`}
-                        onClick={onClose}
-                        disabled={saving}
-                    >
+                    <button className={`${styles.btn} ${styles.btnCancel}`} onClick={onClose} disabled={saving}>
                         Hủy
                     </button>
                 </div>
