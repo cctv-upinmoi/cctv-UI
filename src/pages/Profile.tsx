@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Shield, Mail, ArrowLeft, UserPlus } from 'lucide-react';
+import { User, Shield, Mail, UserPlus } from 'lucide-react';
 import styles from './Profile.module.css';
 import { getMyProfile } from '../services/userService';
 import type { UserProfile } from '../types/user';
@@ -45,9 +45,6 @@ const Profile: React.FC = () => {
         return (
             <div className={styles.container} style={{ justifyContent: 'center', alignItems: 'center' }}>
                 <p>{error || "Profile not found"}</p>
-                <button className={styles.backBtn} style={{ marginTop: 16 }} onClick={() => navigate('/')}>
-                    <ArrowLeft size={24} /> Back to Home
-                </button>
             </div>
         );
     }
@@ -57,9 +54,6 @@ const Profile: React.FC = () => {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <button className={styles.backBtn} onClick={() => navigate('/')}>
-                    <ArrowLeft size={24} />
-                </button>
                 <h1 className={styles.title}>User Profile</h1>
                 <div className={styles.actions}>
                     <button className={styles.addUserBtn} onClick={() => navigate('/add-user')}>

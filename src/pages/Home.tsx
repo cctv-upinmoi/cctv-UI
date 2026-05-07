@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, ShieldX, Cctv, User, Pencil, Trash2, MapPin, X, Wifi, WifiOff, LogOut } from 'lucide-react';
+import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, ShieldX, Cctv, Pencil, Trash2, MapPin, X, Wifi, WifiOff } from 'lucide-react';
 import styles from './Home.module.css';
 import NewCameraDialog from '../components/NewCameraDialog';
 import EditCameraDialog from '../components/EditCameraDialog';
@@ -9,7 +8,6 @@ import ZoneEditorDialog from '../components/ZoneEditorDialog';
 import IntrusionAlertToast from '../components/IntrusionAlertToast';
 import CameraStreamCell from '../components/CameraStreamCell';
 import { getAllCameras } from '../services/cameraService';
-import { logOut } from '../services/authService';
 import { useIntrusionAlert } from '../hooks/useIntrusionAlert';
 import type { CameraRes } from '../types/camera';
 import type { ApiResponse } from '../types/common';
@@ -17,7 +15,6 @@ import type { ApiResponse } from '../types/common';
 const GRID_SIZE = 4;
 
 const Home: React.FC = () => {
-    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'Cameras' | 'Sequences'>('Cameras');
     const [controlMode, setControlMode] = useState(false);
     const [isAddCameraOpen, setIsAddCameraOpen] = useState(false);
@@ -193,14 +190,6 @@ const Home: React.FC = () => {
                         <div className={`${styles.statusBadge} ${connected ? styles.statusConnected : styles.statusDisconnected}`}>
                             {connected ? <><Wifi size={12} /> Live</> : <><WifiOff size={12} /> Offline</>}
                         </div>
-                        <button className={styles.profileBtn} onClick={() => navigate('/profile')}>
-                            <User size={18} />
-                            <span>Profile</span>
-                        </button>
-                        <button className={styles.profileBtn} onClick={logOut}>
-                            <LogOut size={18} />
-                            <span>Logout</span>
-                        </button>
                     </div>
                 </div>
 

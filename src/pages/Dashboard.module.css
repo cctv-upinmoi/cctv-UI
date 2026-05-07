@@ -1,0 +1,285 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-base);
+    color: var(--text-2);
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.headerLeft { display: flex; align-items: center; gap: 10px; }
+.headerIcon { color: var(--text-4); }
+
+.title { margin: 0; font-size: 15px; font-weight: 600; color: var(--text-1); }
+
+.dateBadge {
+    font-size: 12px;
+    color: var(--text-5);
+    background: var(--bg-input);
+    border: 1px solid var(--border-strong);
+    padding: 4px 12px;
+    border-radius: 999px;
+    text-transform: capitalize;
+}
+
+/* ── Body ─────────────────────────────────────────────────────────────── */
+
+.body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.body::-webkit-scrollbar { width: 4px; }
+.body::-webkit-scrollbar-track { background: transparent; }
+.body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.body::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* ── Stat Cards ───────────────────────────────────────────────────────── */
+
+.statsRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.statCard {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: border-color 0.15s;
+}
+
+.statCard:hover { border-color: var(--border-strong); }
+
+.statIcon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.statBody { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+
+.statLabel {
+    font-size: 10px;
+    color: var(--text-5);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+}
+
+.statValue {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-1);
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.statDelta { font-size: 11px; font-weight: 500; }
+.deltaUp     { color: var(--warning); }
+.deltaDown   { color: var(--success); }
+.deltaNeutral { color: var(--text-5); }
+
+.statSub { font-size: 11px; color: var(--text-5); }
+
+/* ── Chart Card ───────────────────────────────────────────────────────── */
+
+.chartCard {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.chartCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.chartCardTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.chartCardTitle svg { color: var(--text-6); }
+
+.chartTabs {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.chartTab {
+    background: none;
+    border: none;
+    color: var(--text-5);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.chartTab:hover { color: var(--text-3); background: var(--bg-hover); }
+.chartTabActive { background: var(--accent-bg); color: var(--accent-fg); }
+
+.chartArea { padding: 16px 20px 8px; }
+
+/* ── Bar chart ────────────────────────────────────────────────────────── */
+
+.barChart  { display: flex; align-items: flex-end; gap: 3px;  height: 148px; }
+.barChart7d { display: flex; align-items: flex-end; gap: 16px; height: 148px; }
+
+.barCol {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.barValue {
+    font-size: 8px;
+    color: var(--accent-fg);
+    font-weight: 600;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.barValueHidden { color: var(--border); }
+
+.barTrack {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    background: var(--bg-base);
+    border-radius: 3px 3px 0 0;
+}
+
+.bar {
+    width: 100%;
+    background: var(--accent);
+    border-radius: 3px 3px 0 0;
+    min-height: 2px;
+    transition: height 0.4s ease;
+}
+
+.barLabel {
+    font-size: 9px;
+    color: var(--text-6);
+    margin-top: 5px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.barLabelToday { color: var(--accent-fg); font-weight: 600; font-size: 10px; }
+
+/* ── Bottom Row ───────────────────────────────────────────────────────── */
+
+.bottomRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cardHeader svg { color: var(--text-6); }
+
+/* ── Camera Ranking ───────────────────────────────────────────────────── */
+
+.rankList { padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; }
+.rankRow  { display: flex; align-items: center; gap: 12px; }
+
+.rankNum { font-size: 12px; font-weight: 700; color: var(--text-6); width: 26px; flex-shrink: 0; text-align: right; }
+.rankNumTop { color: var(--accent-fg); }
+
+.rankBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.rankTop  { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+.rankName {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rankCount { font-size: 13px; font-weight: 700; color: var(--text-3); flex-shrink: 0; }
+.rankBar   { height: 4px; background: var(--bg-input); border-radius: 999px; overflow: hidden; }
+.rankFill  { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+
+/* ── Zone Breakdown ───────────────────────────────────────────────────── */
+
+.zoneList { padding: 16px; display: flex; flex-direction: column; gap: 18px; }
+.zoneRow  { display: flex; align-items: center; gap: 12px; }
+
+.zoneInfo { display: flex; align-items: center; gap: 8px; width: 130px; flex-shrink: 0; }
+.zoneDot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.zoneLabel { font-size: 13px; color: var(--text-3); white-space: nowrap; }
+
+.zoneBar  { flex: 1; height: 6px; background: var(--bg-input); border-radius: 999px; overflow: hidden; }
+.zoneFill { height: 100%; border-radius: 999px; opacity: 0.8; transition: width 0.5s ease; }
+
+.zoneStats { display: flex; align-items: center; gap: 8px; width: 58px; justify-content: flex-end; flex-shrink: 0; }
+.zoneCount { font-size: 14px; font-weight: 700; }
+.zonePct   { font-size: 11px; color: var(--text-5); width: 30px; text-align: right; }
+
+.emptyMsg { color: var(--text-6); font-size: 13px; text-align: center; padding: 20px 0; }

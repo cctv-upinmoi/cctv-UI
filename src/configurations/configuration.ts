@@ -13,6 +13,6 @@ export const API = {
 
 export const KEYCLOACK_CONFIG = {
     url: "http://localhost:8081/",
-    realm: "cctv",
-    clientId: "cctv-app",
+    realm: "smart-cctv",
+    clientId: "cctv-web",
 };

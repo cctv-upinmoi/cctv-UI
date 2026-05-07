@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import keycloak from "./configurations/keycloak";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 const Main = () => {
   const [keycloakInitialized, setKeycloakInitialized] = useState(false);
@@ -67,7 +68,7 @@ const Main = () => {
     );
   }
 
-  return <App />;
+  return <ThemeProvider><App /></ThemeProvider>;
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
