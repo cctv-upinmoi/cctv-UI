@@ -5,6 +5,7 @@ import styles from './Layout.module.css';
 import { logOut } from '../services/authService';
 import keycloak from '../configurations/keycloak';
 import { useTheme } from '../contexts/ThemeContext';
+import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
 
 interface NavItem {
     to: string;
@@ -25,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
 const Layout: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
     const { theme, toggle } = useTheme();
+    const { unreadCount } = useIntrusionAlertContext();
     const parsed = keycloak.tokenParsed as { preferred_username?: string } | undefined;
     const username = parsed?.preferred_username ?? 'User';
 
@@ -53,7 +55,16 @@ const Layout: React.FC = () => {
                                 `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
                             }
                         >
-                            <span className={styles.navIcon}>{item.icon}</span>
+                            <span className={styles.navIcon}>
+                                {item.to === '/notifications' && unreadCount > 0 ? (
+                                    <span className={styles.badgeWrapper}>
+                                        {item.icon}
+                                        <span className={styles.unreadBadge}>
+                                            {unreadCount > 99 ? '99+' : unreadCount}
+                                        </span>
+                                    </span>
+                                ) : item.icon}
+                            </span>
                             {!collapsed && <span className={styles.navLabel}>{item.label}</span>}
                         </NavLink>
                     ))}

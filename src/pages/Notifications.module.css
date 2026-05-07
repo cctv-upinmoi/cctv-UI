@@ -245,6 +245,7 @@
 .body {
     display: flex;
     flex: 1;
+    height: 0;
     overflow: hidden;
 }
 
@@ -395,20 +396,25 @@
 
 .detail {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    min-width: 0;
+    overflow-y: auto;
     background: var(--bg-base);
 }
 
+.detail::-webkit-scrollbar { width: 4px; }
+.detail::-webkit-scrollbar-track { background: transparent; }
+.detail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
 .detailHeader {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 12px 20px;
     border-bottom: 1px solid var(--border);
     background: var(--bg-surface);
-    flex-shrink: 0;
 }
 
 .detailTitle {
@@ -434,17 +440,11 @@
 .closeBtn:hover { background: var(--bg-hover); color: var(--text-2); }
 
 .detailContent {
-    flex: 1;
-    overflow-y: auto;
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
-
-.detailContent::-webkit-scrollbar { width: 4px; }
-.detailContent::-webkit-scrollbar-track { background: transparent; }
-.detailContent::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 .detailImage {
     width: 100%;
@@ -543,3 +543,60 @@
 .emptyDetailIcon { color: var(--border); }
 
 .emptyDetail p { margin: 0; font-size: 13px; color: var(--text-6); }
+
+/* ── Thumb placeholder ────────────────────────────────────────────────── */
+
+.thumbPlaceholder {
+    width: 72px;
+    height: 48px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background: var(--bg-input);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-6);
+}
+
+.detailImagePlaceholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text-6);
+    font-size: 12px;
+}
+
+/* ── Pagination ───────────────────────────────────────────────────────── */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.pageBtn {
+    background: var(--bg-input);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    color: var(--text-3);
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    transition: background 0.15s;
+}
+
+.pageBtn:hover:not(:disabled) { background: var(--bg-hover); }
+.pageBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.pageInfo { font-size: 12px; color: var(--text-5); }

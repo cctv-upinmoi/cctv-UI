@@ -227,10 +227,39 @@
     padding: 8px;
 }
 
+/* ── Unread Badge ─────────────────────────────────────────────────────── */
+
+.badgeWrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.unreadBadge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: var(--danger);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    line-height: 1;
+    pointer-events: none;
+}
+
 /* ── Page Content ─────────────────────────────────────────────────────── */
 
 .content {
     flex: 1;
     overflow: hidden;
     min-width: 0;
+    height: 100%;
 }

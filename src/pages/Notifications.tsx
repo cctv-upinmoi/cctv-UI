@@ -1,34 +1,12 @@
-import React, { useState, useMemo } from 'react';
-import { Bell, Search, Camera, MapPin, Clock, ChevronRight, X, CheckCheck } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Bell, Search, Camera, MapPin, Clock, ChevronRight, X, CheckCheck, ChevronLeft } from 'lucide-react';
 import styles from './Notifications.module.css';
+import * as notificationService from '../services/notificationService';
+import type { NotificationRes } from '../services/notificationService';
+import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
 
-type ZoneType    = 'INTRUSION' | 'LOITERING' | 'LINE_CROSSING';
-type ZoneFilter  = 'ALL' | ZoneType;
 type StatusFilter = 'ALL' | 'UNREAD' | 'READ';
 type DateFilter  = 'ALL' | 'TODAY' | '7D' | '30D' | 'CUSTOM';
-
-interface Notification {
-    id: string;
-    cameraName: string;
-    zoneName: string;
-    zoneType: ZoneType;
-    confidence: number;
-    detectedAt: string; // ISO-8601
-    imageUrl: string;
-}
-
-const ZONE_CONFIG: Record<ZoneType, { label: string; color: string }> = {
-    INTRUSION:     { label: 'Xâm nhập',      color: '#ef4444' },
-    LOITERING:     { label: 'Lảng vảng',      color: '#f97316' },
-    LINE_CROSSING: { label: 'Vượt ranh giới', color: '#3b82f6' },
-};
-
-const ZONE_FILTERS: { key: ZoneFilter; label: string }[] = [
-    { key: 'ALL',          label: 'Tất cả' },
-    { key: 'INTRUSION',    label: 'Xâm nhập' },
-    { key: 'LOITERING',    label: 'Lảng vảng' },
-    { key: 'LINE_CROSSING', label: 'Vượt ranh giới' },
-];
 
 const DATE_FILTERS: { key: DateFilter; label: string }[] = [
     { key: 'ALL',    label: 'Tất cả' },
@@ -44,49 +22,7 @@ const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
     { key: 'READ',   label: 'Đã đọc' },
 ];
 
-const MOCK: Notification[] = [
-    { id: '1',  cameraName: 'Camera Cổng Chính',  zoneName: 'Khu vực hạn chế',    zoneType: 'INTRUSION',     confidence: 0.94, detectedAt: '2026-05-05T21:55:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '2',  cameraName: 'Camera Kho Hàng',    zoneName: 'Vùng cấm vào',       zoneType: 'INTRUSION',     confidence: 0.87, detectedAt: '2026-05-05T21:30:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '3',  cameraName: 'Camera Hành Lang A', zoneName: 'Ranh giới khu vực',  zoneType: 'LINE_CROSSING', confidence: 0.78, detectedAt: '2026-05-05T20:15:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '4',  cameraName: 'Camera Bãi Đỗ Xe',  zoneName: 'Khu vực giám sát',   zoneType: 'LOITERING',     confidence: 0.72, detectedAt: '2026-05-05T19:00:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '5',  cameraName: 'Camera Cổng Chính',  zoneName: 'Khu vực hạn chế',    zoneType: 'INTRUSION',     confidence: 0.96, detectedAt: '2026-05-05T17:30:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '6',  cameraName: 'Camera Hành Lang B', zoneName: 'Lối đi nội bộ',      zoneType: 'LINE_CROSSING', confidence: 0.81, detectedAt: '2026-05-05T15:45:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '7',  cameraName: 'Camera Kho Hàng',    zoneName: 'Vùng cấm vào',       zoneType: 'INTRUSION',     confidence: 0.89, detectedAt: '2026-05-05T13:20:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '8',  cameraName: 'Camera Bãi Đỗ Xe',  zoneName: 'Khu vực giám sát',   zoneType: 'LOITERING',     confidence: 0.65, detectedAt: '2026-05-05T10:05:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '9',  cameraName: 'Camera Cổng Chính',  zoneName: 'Khu vực hạn chế',    zoneType: 'INTRUSION',     confidence: 0.91, detectedAt: '2026-05-04T22:30:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '10', cameraName: 'Camera Hành Lang A', zoneName: 'Ranh giới khu vực',  zoneType: 'LINE_CROSSING', confidence: 0.76, detectedAt: '2026-05-04T14:15:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '11', cameraName: 'Camera Kho Hàng',    zoneName: 'Vùng cấm vào',       zoneType: 'INTRUSION',     confidence: 0.83, detectedAt: '2026-05-03T09:30:00Z', imageUrl: '/mock-snapshot.jpg' },
-    { id: '12', cameraName: 'Camera Bãi Đỗ Xe',  zoneName: 'Khu vực giám sát',   zoneType: 'LOITERING',     confidence: 0.69, detectedAt: '2026-05-02T16:45:00Z', imageUrl: '/mock-snapshot.jpg' },
-];
-
-const INITIALLY_READ = new Set(['9', '10', '11', '12']);
-
-function startOfDay(date: Date): Date {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    return d;
-}
-
-function matchesDate(iso: string, dateFilter: DateFilter, dateFrom: string, dateTo: string): boolean {
-    if (dateFilter === 'ALL') return true;
-    const t = new Date(iso).getTime();
-    const now = Date.now();
-    if (dateFilter === 'TODAY') {
-        return t >= startOfDay(new Date()).getTime();
-    }
-    if (dateFilter === '7D') {
-        return t >= now - 7 * 24 * 60 * 60 * 1000;
-    }
-    if (dateFilter === '30D') {
-        return t >= now - 30 * 24 * 60 * 60 * 1000;
-    }
-    if (dateFilter === 'CUSTOM') {
-        const from = dateFrom ? new Date(dateFrom).getTime() : -Infinity;
-        const to   = dateTo   ? new Date(dateTo).getTime() + 86_400_000 - 1 : Infinity;
-        return t >= from && t <= to;
-    }
-    return true;
-}
+const PAGE_SIZE = 20;
 
 function formatRelative(iso: string): string {
     const diff = Date.now() - new Date(iso).getTime();
@@ -106,47 +42,99 @@ function formatFull(iso: string): string {
     });
 }
 
-function confColor(c: number): string {
-    if (c >= 0.9) return '#10b981';
-    if (c >= 0.7) return '#f59e0b';
-    return '#ef4444';
-}
-
 const Notifications: React.FC = () => {
-    const [selected,     setSelected]     = useState<Notification | null>(null);
-    const [search,       setSearch]       = useState('');
-    const [zoneFilter,   setZoneFilter]   = useState<ZoneFilter>('ALL');
-    const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
-    const [dateFilter,   setDateFilter]   = useState<DateFilter>('ALL');
-    const [dateFrom,     setDateFrom]     = useState('');
-    const [dateTo,       setDateTo]       = useState('');
-    const [reads,        setReads]        = useState<Set<string>>(new Set(INITIALLY_READ));
+    const [items,         setItems]         = useState<NotificationRes[]>([]);
+    const [totalPages,    setTotalPages]    = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    const [page,          setPage]          = useState(0);
+    const [loading,       setLoading]       = useState(false);
+    const [unreadCount,   setUnreadCount]   = useState(0);
+    const { decrementUnread, resetUnread } = useIntrusionAlertContext();
+    const [selected,      setSelected]      = useState<NotificationRes | null>(null);
+    const [search,        setSearch]        = useState('');
+    const [statusFilter,  setStatusFilter]  = useState<StatusFilter>('ALL');
+    const [dateFilter,    setDateFilter]    = useState<DateFilter>('ALL');
+    const [dateFrom,      setDateFrom]      = useState('');
+    const [dateTo,        setDateTo]        = useState('');
 
-    const unreadCount = useMemo(() => MOCK.filter(n => !reads.has(n.id)).length, [reads]);
+    const readParam = statusFilter === 'UNREAD' ? false : statusFilter === 'READ' ? true : undefined;
 
-    const filtered = useMemo(() =>
-        MOCK
-            .filter(n => zoneFilter === 'ALL' || n.zoneType === zoneFilter)
-            .filter(n => {
-                if (statusFilter === 'UNREAD') return !reads.has(n.id);
-                if (statusFilter === 'READ')   return reads.has(n.id);
-                return true;
-            })
-            .filter(n => matchesDate(n.detectedAt, dateFilter, dateFrom, dateTo))
-            .filter(n =>
-                n.cameraName.toLowerCase().includes(search.toLowerCase()) ||
-                n.zoneName.toLowerCase().includes(search.toLowerCase())
-            ),
-        [search, zoneFilter, statusFilter, dateFilter, dateFrom, dateTo, reads]
-    );
+    const fetchItems = useCallback(async (p: number) => {
+        setLoading(true);
+        try {
+            const res = await notificationService.getNotifications(p, PAGE_SIZE, readParam);
+            const data = res.data.data;
+            setItems(data.content);
+            setTotalPages(data.totalPages);
+            setTotalElements(data.totalElements);
+        } catch {
+            /* ignore */
+        } finally {
+            setLoading(false);
+        }
+    }, [readParam]);
 
-    const markRead = (id: string) => setReads(prev => new Set([...prev, id]));
+    const fetchUnread = useCallback(async () => {
+        try {
+            const res = await notificationService.getUnreadCount();
+            setUnreadCount(res.data.data);
+        } catch { /* ignore */ }
+    }, []);
 
-    const markAllRead = () => setReads(new Set(MOCK.map(n => n.id)));
+    useEffect(() => {
+        setPage(0);
+        fetchItems(0);
+        fetchUnread();
+    }, [statusFilter, fetchItems, fetchUnread]);
 
-    const handleSelect = (n: Notification) => {
-        markRead(n.id);
+    useEffect(() => {
+        fetchItems(page);
+    }, [page, fetchItems]);
+
+    const filterByDate = (n: NotificationRes) => {
+        if (dateFilter === 'ALL') return true;
+        const t = new Date(n.detectedAt).getTime();
+        const now = Date.now();
+        if (dateFilter === 'TODAY') {
+            const d = new Date(); d.setHours(0, 0, 0, 0);
+            return t >= d.getTime();
+        }
+        if (dateFilter === '7D') return t >= now - 7 * 86_400_000;
+        if (dateFilter === '30D') return t >= now - 30 * 86_400_000;
+        if (dateFilter === 'CUSTOM') {
+            const from = dateFrom ? new Date(dateFrom).getTime() : -Infinity;
+            const to   = dateTo   ? new Date(dateTo).getTime() + 86_400_000 - 1 : Infinity;
+            return t >= from && t <= to;
+        }
+        return true;
+    };
+
+    const filtered = items
+        .filter(filterByDate)
+        .filter(n =>
+            n.cameraName.toLowerCase().includes(search.toLowerCase()) ||
+            n.zoneName.toLowerCase().includes(search.toLowerCase())
+        );
+
+    const handleSelect = async (n: NotificationRes) => {
         setSelected(prev => prev?.id === n.id ? null : n);
+        if (!n.read) {
+            try {
+                await notificationService.markRead(n.id);
+                setItems(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x));
+                setUnreadCount(prev => Math.max(0, prev - 1));
+                decrementUnread();
+            } catch { /* ignore */ }
+        }
+    };
+
+    const handleMarkAllRead = async () => {
+        try {
+            await notificationService.markAllRead();
+            setItems(prev => prev.map(n => ({ ...n, read: true })));
+            setUnreadCount(0);
+            resetUnread();
+        } catch { /* ignore */ }
     };
 
     return (
@@ -157,14 +145,14 @@ const Notifications: React.FC = () => {
                 <div className={styles.headerLeft}>
                     <Bell size={18} className={styles.headerIcon} />
                     <h1 className={styles.title}>Lịch sử cảnh báo</h1>
-                    <span className={styles.totalBadge}>{filtered.length}</span>
+                    <span className={styles.totalBadge}>{totalElements}</span>
                     {unreadCount > 0 && (
                         <span className={styles.unreadBadge}>{unreadCount} chưa đọc</span>
                     )}
                 </div>
                 <div className={styles.headerRight}>
                     {unreadCount > 0 && (
-                        <button className={styles.markAllBtn} onClick={markAllRead}>
+                        <button className={styles.markAllBtn} onClick={handleMarkAllRead}>
                             <CheckCheck size={14} />
                             <span>Đánh dấu tất cả đã đọc</span>
                         </button>
@@ -178,26 +166,6 @@ const Notifications: React.FC = () => {
                             onChange={e => setSearch(e.target.value)}
                         />
                     </div>
-                </div>
-            </div>
-
-            {/* ── Zone filter bar ── */}
-            <div className={styles.filterBar}>
-                <div className={styles.filterGroup}>
-                    {ZONE_FILTERS.map(f => (
-                        <button
-                            key={f.key}
-                            className={`${styles.filterBtn} ${zoneFilter === f.key ? styles.filterBtnActive : ''}`}
-                            onClick={() => setZoneFilter(f.key)}
-                        >
-                            {f.label}
-                            {f.key !== 'ALL' && (
-                                <span className={styles.filterCount}>
-                                    {MOCK.filter(n => n.zoneType === f.key).length}
-                                </span>
-                            )}
-                        </button>
-                    ))}
                 </div>
             </div>
 
@@ -263,57 +231,73 @@ const Notifications: React.FC = () => {
 
                 {/* List */}
                 <div className={styles.list}>
-                    {filtered.length === 0 ? (
+                    {loading ? (
+                        <div className={styles.listEmpty}>Đang tải...</div>
+                    ) : filtered.length === 0 ? (
                         <div className={styles.listEmpty}>Không có kết quả</div>
                     ) : (
-                        filtered.map(n => {
-                            const cfg      = ZONE_CONFIG[n.zoneType];
-                            const isActive = selected?.id === n.id;
-                            const isUnread = !reads.has(n.id);
-                            return (
-                                <div
-                                    key={n.id}
-                                    className={`${styles.item} ${isActive ? styles.itemActive : ''} ${isUnread ? styles.itemUnread : ''}`}
-                                    onClick={() => handleSelect(n)}
-                                >
-                                    <div className={styles.unreadIndicator}>
-                                        {isUnread && <span className={styles.unreadDot} />}
-                                    </div>
-
-                                    <img src={n.imageUrl} alt="snapshot" className={styles.thumb} />
-
-                                    <div className={styles.itemBody}>
-                                        <div className={styles.itemTop}>
-                                            <span className={styles.camName}>{n.cameraName}</span>
-                                            <span
-                                                className={styles.badge}
-                                                style={{
-                                                    background:   cfg.color + '1a',
-                                                    color:        cfg.color,
-                                                    borderColor:  cfg.color + '50',
-                                                }}
-                                            >
-                                                {cfg.label}
-                                            </span>
+                        <>
+                            {filtered.map(n => {
+                                const isActive = selected?.id === n.id;
+                                return (
+                                    <div
+                                        key={n.id}
+                                        className={`${styles.item} ${isActive ? styles.itemActive : ''} ${!n.read ? styles.itemUnread : ''}`}
+                                        onClick={() => handleSelect(n)}
+                                    >
+                                        <div className={styles.unreadIndicator}>
+                                            {!n.read && <span className={styles.unreadDot} />}
                                         </div>
-                                        <div className={styles.itemBottom}>
-                                            <span className={styles.zoneName}>{n.zoneName}</span>
-                                            <div className={styles.itemMeta}>
-                                                <span className={styles.conf} style={{ color: confColor(n.confidence) }}>
-                                                    {(n.confidence * 100).toFixed(0)}%
-                                                </span>
+
+                                        {n.imageUrl ? (
+                                            <img src={n.imageUrl} alt="snapshot" className={styles.thumb} />
+                                        ) : (
+                                            <div className={styles.thumbPlaceholder}>
+                                                <Camera size={20} />
+                                            </div>
+                                        )}
+
+                                        <div className={styles.itemBody}>
+                                            <div className={styles.itemTop}>
+                                                <span className={styles.camName}>{n.cameraName}</span>
+                                            </div>
+                                            <div className={styles.itemBottom}>
+                                                <span className={styles.zoneName}>{n.zoneName}</span>
                                                 <span className={styles.time}>{formatRelative(n.detectedAt)}</span>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <ChevronRight
-                                        size={14}
-                                        className={`${styles.chevron} ${isActive ? styles.chevronActive : ''}`}
-                                    />
+                                        <ChevronRight
+                                            size={14}
+                                            className={`${styles.chevron} ${isActive ? styles.chevronActive : ''}`}
+                                        />
+                                    </div>
+                                );
+                            })}
+
+                            {/* Pagination */}
+                            {totalPages > 1 && (
+                                <div className={styles.pagination}>
+                                    <button
+                                        className={styles.pageBtn}
+                                        disabled={page === 0}
+                                        onClick={() => setPage(p => p - 1)}
+                                    >
+                                        <ChevronLeft size={14} />
+                                    </button>
+                                    <span className={styles.pageInfo}>
+                                        {page + 1} / {totalPages}
+                                    </span>
+                                    <button
+                                        className={styles.pageBtn}
+                                        disabled={page >= totalPages - 1}
+                                        onClick={() => setPage(p => p + 1)}
+                                    >
+                                        <ChevronRight size={14} />
+                                    </button>
                                 </div>
-                            );
-                        })
+                            )}
+                        </>
                     )}
                 </div>
 
@@ -328,32 +312,15 @@ const Notifications: React.FC = () => {
                         </div>
 
                         <div className={styles.detailContent}>
-                            <img
-                                src={selected.imageUrl}
-                                alt="snapshot"
-                                className={styles.detailImage}
-                            />
+                            {selected.imageUrl ? (
+                                <img src={selected.imageUrl} alt="snapshot" className={styles.detailImage} />
+                            ) : (
+                                <div className={styles.detailImagePlaceholder}>
+                                    <Camera size={48} />
+                                    <span>Không có ảnh</span>
+                                </div>
+                            )}
 
-                            {/* Type badge */}
-                            <div>
-                                {(() => {
-                                    const cfg = ZONE_CONFIG[selected.zoneType];
-                                    return (
-                                        <span
-                                            className={styles.detailBadge}
-                                            style={{
-                                                background:  cfg.color + '1a',
-                                                color:       cfg.color,
-                                                borderColor: cfg.color + '50',
-                                            }}
-                                        >
-                                            {cfg.label}
-                                        </span>
-                                    );
-                                })()}
-                            </div>
-
-                            {/* Info rows */}
                             <div className={styles.infoCard}>
                                 <div className={styles.infoRow}>
                                     <Camera size={14} className={styles.infoIcon} />
@@ -376,35 +343,6 @@ const Notifications: React.FC = () => {
                                         <span className={styles.infoValue}>{formatFull(selected.detectedAt)}</span>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Confidence bar */}
-                            <div className={styles.confCard}>
-                                <div className={styles.confHeader}>
-                                    <span className={styles.confLabel}>Độ tin cậy</span>
-                                    <span
-                                        className={styles.confValue}
-                                        style={{ color: confColor(selected.confidence) }}
-                                    >
-                                        {(selected.confidence * 100).toFixed(0)}%
-                                    </span>
-                                </div>
-                                <div className={styles.confTrack}>
-                                    <div
-                                        className={styles.confFill}
-                                        style={{
-                                            width:      `${selected.confidence * 100}%`,
-                                            background: confColor(selected.confidence),
-                                        }}
-                                    />
-                                </div>
-                                <span className={styles.confHint}>
-                                    {selected.confidence >= 0.9
-                                        ? 'Độ chính xác cao'
-                                        : selected.confidence >= 0.7
-                                            ? 'Độ chính xác trung bình'
-                                            : 'Độ chính xác thấp'}
-                                </span>
                             </div>
                         </div>
                     </div>

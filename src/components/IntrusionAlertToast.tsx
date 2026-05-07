@@ -3,32 +3,20 @@ import { ShieldAlert, X } from 'lucide-react';
 import styles from './IntrusionAlertToast.module.css';
 import type { IntrusionAlert } from '../types/intrusion';
 
-const ZONE_TYPE_LABEL: Record<string, string> = {
-    INTRUSION:     'Xâm nhập',
-    LOITERING:     '徘徊',
-    LINE_CROSSING: 'Vượt ranh',
-};
-
-const ZONE_TYPE_COLOR: Record<string, string> = {
-    INTRUSION:     '#ef4444',
-    LOITERING:     '#f97316',
-    LINE_CROSSING: '#eab308',
-};
+const ALERT_COLOR = '#ef4444';
 
 interface Props {
-    alerts:       IntrusionAlert[];
-    connected:    boolean;
-    onDismiss:    (alertId: string) => void;
-    onClearAll:   () => void;
+    alerts:     IntrusionAlert[];
+    connected:  boolean;
+    onDismiss:  (alertId: string) => void;
+    onClearAll: () => void;
 }
 
 const IntrusionAlertToast: React.FC<Props> = ({ alerts, onDismiss, onClearAll }) => {
     return (
         <div className={styles.container}>
-            {/* Alert list */}
             {alerts.length > 0 && (
                 <div className={styles.alertList}>
-                    {/* Header khi có nhiều alert */}
                     {alerts.length > 1 && (
                         <div className={styles.listHeader}>
                             <span>{alerts.length} cảnh báo</span>
@@ -37,7 +25,6 @@ const IntrusionAlertToast: React.FC<Props> = ({ alerts, onDismiss, onClearAll })
                             </button>
                         </div>
                     )}
-
                     {alerts.map(alert => (
                         <AlertCard key={alert.alertId} alert={alert} onDismiss={onDismiss} />
                     ))}
@@ -47,11 +34,9 @@ const IntrusionAlertToast: React.FC<Props> = ({ alerts, onDismiss, onClearAll })
     );
 };
 
-/** -------- Card cho từng alert -------- */
 const AlertCard: React.FC<{ alert: IntrusionAlert; onDismiss: (id: string) => void }> = ({ alert, onDismiss }) => {
     const [progress, setProgress] = useState(100);
 
-    // Progress bar đếm ngược 10s
     useEffect(() => {
         const start = Date.now();
         const total = 10_000;
@@ -64,42 +49,31 @@ const AlertCard: React.FC<{ alert: IntrusionAlert; onDismiss: (id: string) => vo
         return () => clearInterval(id);
     }, []);
 
-    const zoneColor = ZONE_TYPE_COLOR[alert.zoneType] ?? '#6b7280';
-    const time      = alert.receivedAt.toLocaleTimeString('vi-VN');
-    const confPct   = Math.round((alert.confidence ?? 0) * 100);
+    const time = alert.receivedAt.toLocaleTimeString('vi-VN');
 
     return (
         <div className={styles.card}>
-            {/* Progress bar */}
             <div
                 className={styles.progressBar}
-                style={{ width: `${progress}%`, backgroundColor: zoneColor }}
+                style={{ width: `${progress}%`, backgroundColor: ALERT_COLOR }}
             />
-
             <div className={styles.cardBody}>
-                {/* Icon */}
-                <ShieldAlert size={20} color={zoneColor} className={styles.alertIcon} />
-
-                {/* Content */}
+                <ShieldAlert size={20} color={ALERT_COLOR} className={styles.alertIcon} />
                 <div className={styles.content}>
                     <div className={styles.topRow}>
                         <span className={styles.cameraName}>{alert.cameraName}</span>
                         <span
                             className={styles.zoneTypeBadge}
-                            style={{ backgroundColor: zoneColor }}
+                            style={{ backgroundColor: ALERT_COLOR }}
                         >
-                            {ZONE_TYPE_LABEL[alert.zoneType] ?? alert.zoneType}
+                            Xâm nhập
                         </span>
                     </div>
                     <div className={styles.bottomRow}>
                         <span className={styles.zoneName}>Zone: {alert.zoneName}</span>
-                        <span className={styles.meta}>
-                            {confPct}% · {time}
-                        </span>
+                        <span className={styles.meta}>{time}</span>
                     </div>
                 </div>
-
-                {/* Close */}
                 <button className={styles.closeBtn} onClick={() => onDismiss(alert.alertId)}>
                     <X size={14} />
                 </button>

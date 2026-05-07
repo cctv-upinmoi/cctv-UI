@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App.tsx";
 import keycloak from "./configurations/keycloak";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { IntrusionAlertProvider } from "./contexts/IntrusionAlertContext";
 
 const Main = () => {
   const [keycloakInitialized, setKeycloakInitialized] = useState(false);
@@ -68,7 +69,7 @@ const Main = () => {
     );
   }
 
-  return <ThemeProvider><App /></ThemeProvider>;
+  return <ThemeProvider><IntrusionAlertProvider><App /></IntrusionAlertProvider></ThemeProvider>;
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);

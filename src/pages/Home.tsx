@@ -8,7 +8,7 @@ import ZoneEditorDialog from '../components/ZoneEditorDialog';
 import IntrusionAlertToast from '../components/IntrusionAlertToast';
 import CameraStreamCell from '../components/CameraStreamCell';
 import { getAllCameras } from '../services/cameraService';
-import { useIntrusionAlert } from '../hooks/useIntrusionAlert';
+import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
 import type { CameraRes } from '../types/camera';
 import type { ApiResponse } from '../types/common';
 
@@ -28,7 +28,7 @@ const Home: React.FC = () => {
         Array(GRID_SIZE).fill(null)
     );
 
-    const { alerts, connected, dismissAlert, clearAll } = useIntrusionAlert();
+    const { alerts, connected, dismissAlert, clearAll } = useIntrusionAlertContext();
 
     const fetchCameras = useCallback(async () => {
         setLoading(true);

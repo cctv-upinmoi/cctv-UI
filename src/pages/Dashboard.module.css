@@ -220,6 +220,17 @@
 
 .bottomRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
+.cardFull { grid-column: 1 / -1; }
+
+.loadingState {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--text-5);
+}
+
 .card {
     background: var(--bg-surface);
     border: 1px solid var(--border);
