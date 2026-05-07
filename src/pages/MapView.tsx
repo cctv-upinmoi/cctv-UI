@@ -6,6 +6,10 @@ import { Map as MapIcon, Camera, MapPin, Wifi, WifiOff, Search, X, Layers } from
 import styles from './MapView.module.css';
 import { getAllCameras } from '../services/cameraService';
 import type { CameraRes } from '../types/camera';
+import { useTheme } from '../contexts/ThemeContext';
+
+const TILE_DARK  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const TILE_LIGHT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 
 type CameraStatus = 'ONLINE' | 'OFFLINE';
 type StatusFilter = 'ALL' | 'ONLINE' | 'OFFLINE';
@@ -79,6 +83,7 @@ function FlyToMarker({ target }: { target: [number, number] | null }) {
 }
 
 const MapView: React.FC = () => {
+    const { theme } = useTheme();
     const [cameras,    setCameras]    = useState<CameraLocation[]>([]);
     const [loading,    setLoading]    = useState(true);
     const [search,     setSearch]     = useState('');
@@ -247,7 +252,8 @@ const MapView: React.FC = () => {
                             zoomControl={false}
                         >
                             <TileLayer
-                                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                                key={theme}
+                                url={theme === 'dark' ? TILE_DARK : TILE_LIGHT}
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                                 subdomains="abcd"
                                 maxZoom={20}
