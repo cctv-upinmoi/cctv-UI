@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, AlertTriangle, Camera as CameraIcon, TrendingUp, Clock } from 'lucide-react';
 import styles from './Dashboard.module.css';
+import { useTranslation } from 'react-i18next';
 import * as analyticsService from '../services/analyticsService';
 import type { AnalyticsSummaryRes, HourlyCountRes, DailyCountRes, CameraRankRes } from '../services/analyticsService';
 
-const DAY_SHORT: Record<number, string> = {
-    0: 'CN', 1: 'T2', 2: 'T3', 3: 'T4', 4: 'T5', 5: 'T6', 6: 'T7',
-};
-
-function dayLabel(dateStr: string, isLast: boolean): string {
-    if (isLast) return 'Hôm nay';
-    const d = new Date(dateStr + 'T00:00:00Z');
-    return DAY_SHORT[d.getUTCDay()];
-}
-
 const Dashboard: React.FC = () => {
+    const { t, i18n } = useTranslation();
     const [chartView, setChartView] = useState<'today' | '7d'>('today');
     const [summary, setSummary] = useState<AnalyticsSummaryRes | null>(null);
     const [hourly, setHourly] = useState<HourlyCountRes[]>([]);
@@ -47,14 +39,22 @@ const Dashboard: React.FC = () => {
     const max7d = Math.max(...daily.map(d => d.count), 1);
     const avgPerDay = summary ? (summary.total7d / 7).toFixed(1) : '0';
 
-    const dateLabel = new Date().toLocaleDateString('vi-VN', {
+    const locale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
+
+    const dateLabel = new Date().toLocaleDateString(locale, {
         weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
     });
+
+    const dayLabel = (dateStr: string, isLast: boolean): string => {
+        if (isLast) return t('dashboard.todayBtn');
+        const d = new Date(dateStr + 'T00:00:00Z');
+        return d.toLocaleDateString(locale, { weekday: 'short' });
+    };
 
     if (loading) {
         return (
             <div className={styles.container}>
-                <div className={styles.loadingState}>Đang tải dữ liệu...</div>
+                <div className={styles.loadingState}>{t('common.loading')}</div>
             </div>
         );
     }
@@ -62,18 +62,16 @@ const Dashboard: React.FC = () => {
     return (
         <div className={styles.container}>
 
-            {/* ── Header ── */}
             <div className={styles.header}>
                 <div className={styles.headerLeft}>
                     <LayoutDashboard size={18} className={styles.headerIcon} />
-                    <h1 className={styles.title}>Dashboard</h1>
+                    <h1 className={styles.title}>{t('dashboard.title')}</h1>
                 </div>
                 <span className={styles.dateBadge}>{dateLabel}</span>
             </div>
 
             <div className={styles.body}>
 
-                {/* ── Stat cards ── */}
                 <div className={styles.statsRow}>
 
                     <div className={styles.statCard}>
@@ -81,10 +79,10 @@ const Dashboard: React.FC = () => {
                             <AlertTriangle size={18} color="#60a5fa" />
                         </div>
                         <div className={styles.statBody}>
-                            <span className={styles.statLabel}>Cảnh báo hôm nay</span>
+                            <span className={styles.statLabel}>{t('dashboard.todayAlerts')}</span>
                             <span className={styles.statValue}>{summary?.todayTotal ?? 0}</span>
                             <span className={`${styles.statDelta} ${todayDelta > 0 ? styles.deltaUp : todayDelta < 0 ? styles.deltaDown : styles.deltaNeutral}`}>
-                                {todayDelta > 0 ? `+${todayDelta}` : todayDelta} so với hôm qua
+                                {todayDelta > 0 ? `+${todayDelta}` : todayDelta} {t('dashboard.vsYesterday')}
                             </span>
                         </div>
                     </div>
@@ -94,14 +92,14 @@ const Dashboard: React.FC = () => {
                             <CameraIcon size={18} color="#4ade80" />
                         </div>
                         <div className={styles.statBody}>
-                            <span className={styles.statLabel}>Camera nhiều nhất</span>
+                            <span className={styles.statLabel}>{t('dashboard.topCamera')}</span>
                             <span className={styles.statValue} style={{ fontSize: '15px' }}>
                                 {summary?.topCameraName ?? '—'}
                             </span>
                             <span className={styles.statSub}>
                                 {summary?.topCameraName
-                                    ? `${summary.topCameraCount} lần hôm nay`
-                                    : 'Chưa có dữ liệu'}
+                                    ? `${summary.topCameraCount} ${t('dashboard.timesToday')}`
+                                    : t('dashboard.noData')}
                             </span>
                         </div>
                     </div>
@@ -111,9 +109,9 @@ const Dashboard: React.FC = () => {
                             <TrendingUp size={18} color="#a78bfa" />
                         </div>
                         <div className={styles.statBody}>
-                            <span className={styles.statLabel}>Tổng 7 ngày qua</span>
+                            <span className={styles.statLabel}>{t('dashboard.total7d')}</span>
                             <span className={styles.statValue}>{summary?.total7d ?? 0}</span>
-                            <span className={styles.statSub}>~{avgPerDay} cảnh báo / ngày</span>
+                            <span className={styles.statSub}>~{avgPerDay} {t('dashboard.avgPerDay')}</span>
                         </div>
                     </div>
 
@@ -122,35 +120,32 @@ const Dashboard: React.FC = () => {
                             <AlertTriangle size={18} color="#f87171" />
                         </div>
                         <div className={styles.statBody}>
-                            <span className={styles.statLabel}>Hôm qua</span>
+                            <span className={styles.statLabel}>{t('dashboard.yesterday')}</span>
                             <span className={styles.statValue}>{summary?.yesterdayTotal ?? 0}</span>
-                            <span className={styles.statSub}>cảnh báo ngày hôm qua</span>
+                            <span className={styles.statSub}>{t('dashboard.yesterdayAlerts')}</span>
                         </div>
                     </div>
 
                 </div>
 
-                {/* ── Chart card ── */}
                 <div className={styles.chartCard}>
                     <div className={styles.chartCardHeader}>
                         <span className={styles.chartCardTitle}>
                             <Clock size={14} />
-                            {chartView === 'today'
-                                ? 'Phân bổ cảnh báo theo giờ — Hôm nay'
-                                : 'Cảnh báo 7 ngày qua'}
+                            {chartView === 'today' ? t('dashboard.hourlyTitle') : t('dashboard.weeklyTitle')}
                         </span>
                         <div className={styles.chartTabs}>
                             <button
                                 className={`${styles.chartTab} ${chartView === 'today' ? styles.chartTabActive : ''}`}
                                 onClick={() => setChartView('today')}
                             >
-                                Hôm nay
+                                {t('dashboard.todayBtn')}
                             </button>
                             <button
                                 className={`${styles.chartTab} ${chartView === '7d' ? styles.chartTabActive : ''}`}
                                 onClick={() => setChartView('7d')}
                             >
-                                7 ngày
+                                {t('dashboard.sevenDays')}
                             </button>
                         </div>
                     </div>
@@ -164,14 +159,9 @@ const Dashboard: React.FC = () => {
                                             {count > 0 ? count : '·'}
                                         </span>
                                         <div className={styles.barTrack}>
-                                            <div
-                                                className={styles.bar}
-                                                style={{ height: `${(count / maxHour) * 100}%` }}
-                                            />
+                                            <div className={styles.bar} style={{ height: `${(count / maxHour) * 100}%` }} />
                                         </div>
-                                        <span className={styles.barLabel}>
-                                            {hour % 4 === 0 ? `${hour}h` : ''}
-                                        </span>
+                                        <span className={styles.barLabel}>{hour % 4 === 0 ? `${hour}h` : ''}</span>
                                     </div>
                                 ))}
                             </div>
@@ -201,16 +191,15 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
 
-                {/* ── Bottom row ── */}
                 <div className={styles.bottomRow}>
                     <div className={`${styles.card} ${styles.cardFull}`}>
                         <div className={styles.cardHeader}>
                             <CameraIcon size={14} />
-                            <span>Camera hoạt động nhiều nhất — Hôm nay</span>
+                            <span>{t('dashboard.topCamerasTitle')}</span>
                         </div>
                         <div className={styles.rankList}>
                             {topCameras.length === 0 ? (
-                                <div className={styles.emptyMsg}>Chưa có dữ liệu</div>
+                                <div className={styles.emptyMsg}>{t('common.noData')}</div>
                             ) : (
                                 topCameras.map(({ cameraId, cameraName, count }, i) => (
                                     <div key={cameraId} className={styles.rankRow}>

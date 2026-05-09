@@ -1,34 +1,37 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Cctv, Bell, User, UserPlus, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Map, Sun, Moon } from 'lucide-react';
+import { Cctv, Bell, User, UserPlus, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Map, Sun, Moon, Languages } from 'lucide-react';
 import styles from './Layout.module.css';
 import { logOut } from '../services/authService';
 import keycloak from '../configurations/keycloak';
 import { useTheme } from '../contexts/ThemeContext';
 import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
-
-interface NavItem {
-    to: string;
-    icon: React.ReactNode;
-    label: string;
-    end?: boolean;
-}
-
-const NAV_ITEMS: NavItem[] = [
-    { to: '/', icon: <Cctv size={20} />, label: 'Live Monitor', end: true },
-    { to: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-    { to: '/map', icon: <Map size={20} />, label: 'Bản đồ' },
-    { to: '/notifications', icon: <Bell size={20} />, label: 'Cảnh báo' },
-    { to: '/profile', icon: <User size={20} />, label: 'Profile' },
-    { to: '/add-user', icon: <UserPlus size={20} />, label: 'Add User' },
-];
+import { useTranslation } from 'react-i18next';
 
 const Layout: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
     const { theme, toggle } = useTheme();
     const { unreadCount } = useIntrusionAlertContext();
+    const { t, i18n } = useTranslation();
     const parsed = keycloak.tokenParsed as { preferred_username?: string } | undefined;
     const username = parsed?.preferred_username ?? 'User';
+
+    const isVi = i18n.language === 'vi';
+
+    const toggleLanguage = () => {
+        const next = isVi ? 'en' : 'vi';
+        i18n.changeLanguage(next);
+        localStorage.setItem('cctv-lang', next);
+    };
+
+    const NAV_ITEMS = [
+        { to: '/',              icon: <Cctv size={20} />,          label: t('nav.liveMonitor'), end: true },
+        { to: '/dashboard',     icon: <LayoutDashboard size={20} />, label: t('nav.dashboard') },
+        { to: '/map',           icon: <Map size={20} />,            label: t('nav.map') },
+        { to: '/notifications', icon: <Bell size={20} />,           label: t('nav.alerts') },
+        { to: '/profile',       icon: <User size={20} />,           label: t('nav.profile') },
+        { to: '/add-user',      icon: <UserPlus size={20} />,       label: t('nav.addUser') },
+    ];
 
     return (
         <div className={styles.shell}>
@@ -73,11 +76,19 @@ const Layout: React.FC = () => {
                 <div className={styles.navFooter}>
                     <button
                         className={styles.themeBtn}
+                        onClick={toggleLanguage}
+                        title={collapsed ? (isVi ? t('nav.english') : t('nav.vietnamese')) : undefined}
+                    >
+                        <Languages size={18} />
+                        {!collapsed && <span>{isVi ? t('nav.english') : t('nav.vietnamese')}</span>}
+                    </button>
+                    <button
+                        className={styles.themeBtn}
                         onClick={toggle}
-                        title={collapsed ? (theme === 'dark' ? 'Light mode' : 'Dark mode') : undefined}
+                        title={collapsed ? t(theme === 'dark' ? 'nav.lightMode' : 'nav.darkMode') : undefined}
                     >
                         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                        {!collapsed && <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>}
+                        {!collapsed && <span>{t(theme === 'dark' ? 'nav.lightMode' : 'nav.darkMode')}</span>}
                     </button>
                     <div className={styles.userRow} title={collapsed ? username : undefined}>
                         <div className={styles.avatar}>{username[0].toUpperCase()}</div>
@@ -86,10 +97,10 @@ const Layout: React.FC = () => {
                     <button
                         className={styles.logoutBtn}
                         onClick={logOut}
-                        title={collapsed ? 'Logout' : undefined}
+                        title={collapsed ? t('nav.logout') : undefined}
                     >
                         <LogOut size={18} />
-                        {!collapsed && <span>Logout</span>}
+                        {!collapsed && <span>{t('nav.logout')}</span>}
                     </button>
                 </div>
             </nav>

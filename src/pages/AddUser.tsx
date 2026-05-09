@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Lock, Shield } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from './AddUser.module.css';
 import { register } from '../services/userService';
 import type { CreateUserRequest } from '../types/user';
 
 const AddUser: React.FC = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [formData, setFormData] = useState<CreateUserRequest>({
         email: '',
         firstName: '',
@@ -28,11 +30,11 @@ const AddUser: React.FC = () => {
         setError(null);
         try {
             await register(formData);
-            alert('User created successfully!');
+            alert(t('addUser.success'));
             navigate('/profile');
         } catch (err) {
             console.error('Failed to create user:', err);
-            setError('Failed to create user. Please try again.');
+            setError(t('addUser.error'));
         } finally {
             setLoading(false);
         }
@@ -44,94 +46,61 @@ const AddUser: React.FC = () => {
                 <button className={styles.backBtn} onClick={() => navigate('/profile')}>
                     <ArrowLeft size={24} />
                 </button>
-                <h1 className={styles.title}>Add New User</h1>
+                <h1 className={styles.title}>{t('addUser.title')}</h1>
             </div>
 
             <div className={styles.content}>
                 <div className={styles.formCard}>
-                    <p className={styles.subtitle}>Fill in the details to create a new user account.</p>
+                    <p className={styles.subtitle}>{t('addUser.subtitle')}</p>
 
                     {error && (
-                        <div style={{ color: '#ff5252', marginBottom: '16px', fontSize: '0.9rem', backgroundColor: 'rgba(255, 82, 82, 0.1)', padding: '10px', borderRadius: '4px' }}>
+                        <div style={{ color: '#ff5252', marginBottom: '16px', fontSize: '0.9rem', backgroundColor: 'rgba(255,82,82,0.1)', padding: '10px', borderRadius: '4px' }}>
                             {error}
                         </div>
                     )}
 
                     <form onSubmit={handleSubmit} className={styles.form}>
                         <div className={styles.formGroup}>
-                            <label className={styles.label}>Email Address</label>
+                            <label className={styles.label}>{t('addUser.email')}</label>
                             <div className={styles.inputWrapper}>
                                 <Mail className={styles.inputIcon} size={18} />
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    placeholder="Enter email address"
-                                    className={styles.input}
-                                    required
-                                />
+                                <input type="email" name="email" value={formData.email} onChange={handleChange}
+                                    placeholder={t('addUser.email')} className={styles.input} required />
                             </div>
                         </div>
 
                         <div className={styles.formGroup}>
-                            <label className={styles.label}>First Name</label>
+                            <label className={styles.label}>{t('addUser.firstName')}</label>
                             <div className={styles.inputWrapper}>
                                 <User className={styles.inputIcon} size={18} />
-                                <input
-                                    type="text"
-                                    name="firstName"
-                                    value={formData.firstName}
-                                    onChange={handleChange}
-                                    placeholder="Enter first name"
-                                    className={styles.input}
-                                    required
-                                />
+                                <input type="text" name="firstName" value={formData.firstName} onChange={handleChange}
+                                    placeholder={t('addUser.firstName')} className={styles.input} required />
                             </div>
                         </div>
 
                         <div className={styles.formGroup}>
-                            <label className={styles.label}>Last Name</label>
+                            <label className={styles.label}>{t('addUser.lastName')}</label>
                             <div className={styles.inputWrapper}>
                                 <User className={styles.inputIcon} size={18} />
-                                <input
-                                    type="text"
-                                    name="lastName"
-                                    value={formData.lastName}
-                                    onChange={handleChange}
-                                    placeholder="Enter last name"
-                                    className={styles.input}
-                                    required
-                                />
+                                <input type="text" name="lastName" value={formData.lastName} onChange={handleChange}
+                                    placeholder={t('addUser.lastName')} className={styles.input} required />
                             </div>
                         </div>
 
                         <div className={styles.formGroup}>
-                            <label className={styles.label}>Password</label>
+                            <label className={styles.label}>{t('addUser.password')}</label>
                             <div className={styles.inputWrapper}>
                                 <Lock className={styles.inputIcon} size={18} />
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    placeholder="Enter password"
-                                    className={styles.input}
-                                    required
-                                />
+                                <input type="password" name="password" value={formData.password} onChange={handleChange}
+                                    placeholder={t('addUser.password')} className={styles.input} required />
                             </div>
                         </div>
 
                         <div className={styles.formGroup}>
-                            <label className={styles.label}>Role</label>
+                            <label className={styles.label}>{t('addUser.role')}</label>
                             <div className={styles.inputWrapper}>
                                 <Shield className={styles.inputIcon} size={18} />
-                                <select
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleChange}
-                                    className={styles.select}
-                                >
+                                <select name="role" value={formData.role} onChange={handleChange} className={styles.select}>
                                     <option value="User">User</option>
                                     <option value="Operator">Operator</option>
                                     <option value="Administrator">Administrator</option>
@@ -141,10 +110,10 @@ const AddUser: React.FC = () => {
 
                         <div className={styles.formActions}>
                             <button type="button" className={styles.cancelBtn} onClick={() => navigate('/profile')} disabled={loading}>
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button type="submit" className={styles.submitBtn} disabled={loading} style={{ opacity: loading ? 0.7 : 1 }}>
-                                {loading ? 'Creating...' : 'Create User'}
+                                {loading ? t('common.loading') : t('addUser.submit')}
                             </button>
                         </div>
                     </form>

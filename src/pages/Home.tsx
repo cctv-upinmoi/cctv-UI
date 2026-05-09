@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, ShieldX, Cctv, Pencil, Trash2, MapPin, X, Wifi, WifiOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from './Home.module.css';
 import NewCameraDialog from '../components/NewCameraDialog';
 import EditCameraDialog from '../components/EditCameraDialog';
@@ -15,6 +16,7 @@ import type { ApiResponse } from '../types/common';
 const GRID_SIZE = 4;
 
 const Home: React.FC = () => {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'Cameras' | 'Sequences'>('Cameras');
     const [controlMode, setControlMode] = useState(false);
     const [isAddCameraOpen, setIsAddCameraOpen] = useState(false);
@@ -56,14 +58,12 @@ const Home: React.FC = () => {
         setSelectedCameras(prev => {
             const existingIdx = prev.findIndex(c => c?.id === camera.id);
             if (existingIdx !== -1) {
-                // Camera đang active → bỏ ra khỏi grid
                 const next = [...prev];
                 next[existingIdx] = null;
                 return next;
             }
-            // Tìm ô trống đầu tiên
             const emptyIdx = prev.findIndex(c => c === null);
-            if (emptyIdx === -1) return prev; // grid đầy, bỏ qua
+            if (emptyIdx === -1) return prev;
             const next = [...prev];
             next[emptyIdx] = camera;
             return next;
@@ -96,7 +96,7 @@ const Home: React.FC = () => {
                         className={`${styles.tab} ${activeTab === 'Cameras' ? styles.active : ''}`}
                         onClick={() => setActiveTab('Cameras')}
                     >
-                        Cameras
+                        {t('home.cameras')}
                     </div>
                     <CircleHelp className={styles.helpIcon} size={18} />
                 </div>
@@ -106,7 +106,7 @@ const Home: React.FC = () => {
                         <Search className={styles.searchBoxIcon} />
                         <input
                             type="text"
-                            placeholder="Search"
+                            placeholder={t('common.search')}
                             className={styles.searchInput}
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
@@ -123,10 +123,10 @@ const Home: React.FC = () => {
 
                 <div className={styles.cameraList}>
                     {loading && (
-                        <div className={styles.loadingText}>Đang tải...</div>
+                        <div className={styles.loadingText}>{t('common.loading')}</div>
                     )}
                     {!loading && filteredCameras.length === 0 && (
-                        <div className={styles.emptyText}>Không có camera</div>
+                        <div className={styles.emptyText}>{t('home.noCamera')}</div>
                     )}
                     {filteredCameras.map((camera) => (
                         <div
@@ -183,12 +183,15 @@ const Home: React.FC = () => {
                                 />
                                 <span className={styles.slider}></span>
                             </div>
-                            Control Mode
+                            {t('home.controlMode')}
                         </label>
                     </div>
                     <div className={styles.topBarRight}>
                         <div className={`${styles.statusBadge} ${connected ? styles.statusConnected : styles.statusDisconnected}`}>
-                            {connected ? <><Wifi size={12} /> Live</> : <><WifiOff size={12} /> Offline</>}
+                            {connected
+                                ? <><Wifi size={12} /> {t('home.connected')}</>
+                                : <><WifiOff size={12} /> {t('home.disconnected')}</>
+                            }
                         </div>
                     </div>
                 </div>
@@ -203,7 +206,7 @@ const Home: React.FC = () => {
                                         <button
                                             className={styles.streamCloseBtn}
                                             onClick={() => removeFromSlot(idx)}
-                                            title="Đóng stream"
+                                            title={t('common.close')}
                                         >
                                             <X size={14} />
                                         </button>
@@ -215,10 +218,10 @@ const Home: React.FC = () => {
                                 </>
                             ) : (
                                 <>
-                                    <div className={styles.streamLabel}>Stream {idx + 1}</div>
+                                    <div className={styles.streamLabel}>{t('home.stream', { num: idx + 1 })}</div>
                                     <div className={styles.placeholder}>
                                         <Cctv className={styles.placeholderIcon} size={32} />
-                                        <span className={styles.placeholderText}>Select camera to play stream</span>
+                                        <span className={styles.placeholderText}>{t('home.selectCamera')}</span>
                                     </div>
                                 </>
                             )}

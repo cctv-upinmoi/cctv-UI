@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Bell, Search, Camera, MapPin, Clock, ChevronRight, X, CheckCheck, ChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from './Notifications.module.css';
 import * as notificationService from '../services/notificationService';
 import type { NotificationRes } from '../services/notificationService';
@@ -8,41 +9,44 @@ import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
 type StatusFilter = 'ALL' | 'UNREAD' | 'READ';
 type DateFilter  = 'ALL' | 'TODAY' | '7D' | '30D' | 'CUSTOM';
 
-const DATE_FILTERS: { key: DateFilter; label: string }[] = [
-    { key: 'ALL',    label: 'Tất cả' },
-    { key: 'TODAY',  label: 'Hôm nay' },
-    { key: '7D',     label: '7 ngày' },
-    { key: '30D',    label: '30 ngày' },
-    { key: 'CUSTOM', label: 'Tùy chọn' },
-];
-
-const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
-    { key: 'ALL',    label: 'Tất cả' },
-    { key: 'UNREAD', label: 'Chưa đọc' },
-    { key: 'READ',   label: 'Đã đọc' },
-];
-
 const PAGE_SIZE = 20;
 
-function formatRelative(iso: string): string {
-    const diff = Date.now() - new Date(iso).getTime();
-    const mins = Math.floor(diff / 60_000);
-    if (mins < 1) return 'Vừa xong';
-    if (mins < 60) return `${mins} phút trước`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours} giờ trước`;
-    return `${Math.floor(hours / 24)} ngày trước`;
-}
-
-function formatFull(iso: string): string {
-    return new Date(iso).toLocaleString('vi-VN', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
-        hour12: false,
-    });
-}
-
 const Notifications: React.FC = () => {
+    const { t, i18n } = useTranslation();
+
+    const DATE_FILTERS: { key: DateFilter; label: string }[] = [
+        { key: 'ALL',    label: t('common.all') },
+        { key: 'TODAY',  label: t('common.today') },
+        { key: '7D',     label: t('notifications.sevenDays') },
+        { key: '30D',    label: t('notifications.thirtyDays') },
+        { key: 'CUSTOM', label: t('notifications.customDate') },
+    ];
+
+    const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
+        { key: 'ALL',    label: t('common.all') },
+        { key: 'UNREAD', label: t('notifications.unreadFilter') },
+        { key: 'READ',   label: t('notifications.readFilter') },
+    ];
+
+    const formatRelative = (iso: string): string => {
+        const diff = Date.now() - new Date(iso).getTime();
+        const mins = Math.floor(diff / 60_000);
+        if (mins < 1) return t('notifications.justNow');
+        if (mins < 60) return t('notifications.minutesAgo', { count: mins });
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return t('notifications.hoursAgo', { count: hours });
+        return t('notifications.daysAgo', { count: Math.floor(hours / 24) });
+    };
+
+    const formatFull = (iso: string): string => {
+        const locale = i18n.language === 'vi' ? 'vi-VN' : 'en-US';
+        return new Date(iso).toLocaleString(locale, {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false,
+        });
+    };
+
     const [items,         setItems]         = useState<NotificationRes[]>([]);
     const [totalPages,    setTotalPages]    = useState(0);
     const [totalElements, setTotalElements] = useState(0);
@@ -144,24 +148,24 @@ const Notifications: React.FC = () => {
             <div className={styles.header}>
                 <div className={styles.headerLeft}>
                     <Bell size={18} className={styles.headerIcon} />
-                    <h1 className={styles.title}>Lịch sử cảnh báo</h1>
+                    <h1 className={styles.title}>{t('notifications.title')}</h1>
                     <span className={styles.totalBadge}>{totalElements}</span>
                     {unreadCount > 0 && (
-                        <span className={styles.unreadBadge}>{unreadCount} chưa đọc</span>
+                        <span className={styles.unreadBadge}>{unreadCount} {t('notifications.unread')}</span>
                     )}
                 </div>
                 <div className={styles.headerRight}>
                     {unreadCount > 0 && (
                         <button className={styles.markAllBtn} onClick={handleMarkAllRead}>
                             <CheckCheck size={14} />
-                            <span>Đánh dấu tất cả đã đọc</span>
+                            <span>{t('notifications.markAllRead')}</span>
                         </button>
                     )}
                     <div className={styles.searchBox}>
                         <Search size={13} className={styles.searchIcon} />
                         <input
                             className={styles.searchInput}
-                            placeholder="Tìm camera, vùng..."
+                            placeholder={t('notifications.searchPlaceholder')}
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                         />
@@ -201,14 +205,14 @@ const Notifications: React.FC = () => {
             {/* ── Custom date inputs ── */}
             {dateFilter === 'CUSTOM' && (
                 <div className={styles.customDateBar}>
-                    <label className={styles.dateLabel}>Từ</label>
+                    <label className={styles.dateLabel}>{t('notifications.dateFrom')}</label>
                     <input
                         type="date"
                         className={styles.dateInput}
                         value={dateFrom}
                         onChange={e => setDateFrom(e.target.value)}
                     />
-                    <label className={styles.dateLabel}>Đến</label>
+                    <label className={styles.dateLabel}>{t('notifications.dateTo')}</label>
                     <input
                         type="date"
                         className={styles.dateInput}
@@ -220,7 +224,7 @@ const Notifications: React.FC = () => {
                             className={styles.clearDateBtn}
                             onClick={() => { setDateFrom(''); setDateTo(''); }}
                         >
-                            <X size={12} /> Xóa
+                            <X size={12} /> {t('common.clear')}
                         </button>
                     )}
                 </div>
@@ -232,9 +236,9 @@ const Notifications: React.FC = () => {
                 {/* List */}
                 <div className={styles.list}>
                     {loading ? (
-                        <div className={styles.listEmpty}>Đang tải...</div>
+                        <div className={styles.listEmpty}>{t('common.loading')}</div>
                     ) : filtered.length === 0 ? (
-                        <div className={styles.listEmpty}>Không có kết quả</div>
+                        <div className={styles.listEmpty}>{t('common.noResults')}</div>
                     ) : (
                         <>
                             {filtered.map(n => {
@@ -305,7 +309,7 @@ const Notifications: React.FC = () => {
                 {selected ? (
                     <div className={styles.detail}>
                         <div className={styles.detailHeader}>
-                            <span className={styles.detailTitle}>Chi tiết cảnh báo</span>
+                            <span className={styles.detailTitle}>{t('notifications.detailTitle')}</span>
                             <button className={styles.closeBtn} onClick={() => setSelected(null)}>
                                 <X size={16} />
                             </button>
@@ -317,7 +321,7 @@ const Notifications: React.FC = () => {
                             ) : (
                                 <div className={styles.detailImagePlaceholder}>
                                     <Camera size={48} />
-                                    <span>Không có ảnh</span>
+                                    <span>{t('notifications.noImage')}</span>
                                 </div>
                             )}
 
@@ -325,21 +329,21 @@ const Notifications: React.FC = () => {
                                 <div className={styles.infoRow}>
                                     <Camera size={14} className={styles.infoIcon} />
                                     <div className={styles.infoContent}>
-                                        <span className={styles.infoLabel}>Camera</span>
+                                        <span className={styles.infoLabel}>{t('notifications.camera')}</span>
                                         <span className={styles.infoValue}>{selected.cameraName}</span>
                                     </div>
                                 </div>
                                 <div className={styles.infoRow}>
                                     <MapPin size={14} className={styles.infoIcon} />
                                     <div className={styles.infoContent}>
-                                        <span className={styles.infoLabel}>Vùng giám sát</span>
+                                        <span className={styles.infoLabel}>{t('notifications.zone')}</span>
                                         <span className={styles.infoValue}>{selected.zoneName}</span>
                                     </div>
                                 </div>
                                 <div className={styles.infoRow}>
                                     <Clock size={14} className={styles.infoIcon} />
                                     <div className={styles.infoContent}>
-                                        <span className={styles.infoLabel}>Thời gian phát hiện</span>
+                                        <span className={styles.infoLabel}>{t('notifications.detectedAt')}</span>
                                         <span className={styles.infoValue}>{formatFull(selected.detectedAt)}</span>
                                     </div>
                                 </div>
@@ -349,7 +353,7 @@ const Notifications: React.FC = () => {
                 ) : (
                     <div className={styles.emptyDetail}>
                         <Bell size={36} className={styles.emptyDetailIcon} />
-                        <p>Chọn một cảnh báo để xem chi tiết</p>
+                        <p>{t('notifications.selectAlert')}</p>
                     </div>
                 )}
             </div>

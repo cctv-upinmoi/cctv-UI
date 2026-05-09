@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Map as MapIcon, Camera, MapPin, Wifi, WifiOff, Search, X, Layers } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from './MapView.module.css';
 import { getAllCameras } from '../services/cameraService';
 import type { CameraRes } from '../types/camera';
@@ -83,6 +84,7 @@ function FlyToMarker({ target }: { target: [number, number] | null }) {
 }
 
 const MapView: React.FC = () => {
+    const { t } = useTranslation();
     const { theme } = useTheme();
     const [cameras,    setCameras]    = useState<CameraLocation[]>([]);
     const [loading,    setLoading]    = useState(true);
@@ -133,6 +135,12 @@ const MapView: React.FC = () => {
 
     const selected = cameras.find(c => c.id === selectedId) ?? null;
 
+    const STATUS_BTNS: [StatusFilter, string, number][] = [
+        ['ALL',     t('common.all'),     cameras.length],
+        ['ONLINE',  t('common.online'),  onlineCount],
+        ['OFFLINE', t('common.offline'), offlineCount],
+    ];
+
     return (
         <div className={styles.container}>
 
@@ -140,28 +148,28 @@ const MapView: React.FC = () => {
             <div className={styles.header}>
                 <div className={styles.headerLeft}>
                     <MapIcon size={18} className={styles.headerIcon} />
-                    <h1 className={styles.title}>Bản đồ Camera</h1>
-                    <span className={styles.totalBadge}>{cameras.length} camera</span>
+                    <h1 className={styles.title}>{t('map.title')}</h1>
+                    <span className={styles.totalBadge}>
+                        {t('map.cameraCount', { count: cameras.length })}
+                    </span>
                 </div>
                 <div className={styles.filterGroup}>
-                    {([['ALL', 'Tất cả', cameras.length], ['ONLINE', 'Online', onlineCount], ['OFFLINE', 'Offline', offlineCount]] as [StatusFilter, string, number][]).map(
-                        ([key, label, count]) => (
-                            <button
-                                key={key}
-                                className={`${styles.filterBtn} ${filter === key ? styles.filterBtnActive : ''}`}
-                                onClick={() => setFilter(key)}
-                            >
-                                {key !== 'ALL' && (
-                                    <span
-                                        className={styles.statusDot}
-                                        style={{ background: key === 'ONLINE' ? '#10b981' : '#ef4444' }}
-                                    />
-                                )}
-                                {label}
-                                <span className={styles.filterCount}>{count}</span>
-                            </button>
-                        )
-                    )}
+                    {STATUS_BTNS.map(([key, label, count]) => (
+                        <button
+                            key={key}
+                            className={`${styles.filterBtn} ${filter === key ? styles.filterBtnActive : ''}`}
+                            onClick={() => setFilter(key)}
+                        >
+                            {key !== 'ALL' && (
+                                <span
+                                    className={styles.statusDot}
+                                    style={{ background: key === 'ONLINE' ? '#10b981' : '#ef4444' }}
+                                />
+                            )}
+                            {label}
+                            <span className={styles.filterCount}>{count}</span>
+                        </button>
+                    ))}
                 </div>
             </div>
 
@@ -174,7 +182,7 @@ const MapView: React.FC = () => {
                         <Search size={13} className={styles.searchIcon} />
                         <input
                             className={styles.searchInput}
-                            placeholder="Tìm camera, địa chỉ..."
+                            placeholder={t('map.searchPlaceholder')}
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                         />
@@ -187,10 +195,10 @@ const MapView: React.FC = () => {
 
                     <div className={styles.cameraList}>
                         {loading ? (
-                            <div className={styles.listEmpty}>Đang tải...</div>
+                            <div className={styles.listEmpty}>{t('map.loadingMap')}</div>
                         ) : filtered.length === 0 ? (
                             <div className={styles.listEmpty}>
-                                {cameras.length === 0 ? 'Chưa có camera nào có toạ độ' : 'Không có kết quả'}
+                                {cameras.length === 0 ? t('map.noCameraWithCoords') : t('common.noResults')}
                             </div>
                         ) : (
                             filtered.map(cam => {
@@ -216,7 +224,7 @@ const MapView: React.FC = () => {
                                                     borderColor: (online ? '#10b981' : '#ef4444') + '50',
                                                 }}
                                             >
-                                                {online ? 'Online' : 'Offline'}
+                                                {online ? t('common.online') : t('common.offline')}
                                             </span>
                                         </div>
                                         {(cam.address || cam.district) && (
@@ -231,7 +239,7 @@ const MapView: React.FC = () => {
                                             <div className={styles.cardMeta}>
                                                 <Layers size={11} className={styles.metaIcon} />
                                                 <span className={styles.metaText}>
-                                                    {cam.zoneCount} vùng giám sát
+                                                    {cam.zoneCount} {t('map.monitoringZones')}
                                                 </span>
                                             </div>
                                         )}
@@ -283,8 +291,8 @@ const MapView: React.FC = () => {
                                                 }}
                                             >
                                                 {cam.status === 'ONLINE'
-                                                    ? <><Wifi size={10} /> Online</>
-                                                    : <><WifiOff size={10} /> Offline</>
+                                                    ? <><Wifi size={10} /> {t('common.online')}</>
+                                                    : <><WifiOff size={10} /> {t('common.offline')}</>
                                                 }
                                             </span>
                                             {(cam.address || cam.district || cam.city) && (
@@ -298,7 +306,7 @@ const MapView: React.FC = () => {
                                             {cam.zoneCount > 0 && (
                                                 <div className={styles.popupRow}>
                                                     <Layers size={11} className={styles.popupIcon} />
-                                                    <span>{cam.zoneCount} vùng giám sát</span>
+                                                    <span>{cam.zoneCount} {t('map.monitoringZones')}</span>
                                                 </div>
                                             )}
                                             <div className={styles.popupRow}>
@@ -317,11 +325,11 @@ const MapView: React.FC = () => {
                     <div className={styles.legend}>
                         <div className={styles.legendRow}>
                             <span className={styles.legendDot} style={{ background: '#10b981' }} />
-                            <span>Online ({onlineCount})</span>
+                            <span>{t('common.online')} ({onlineCount})</span>
                         </div>
                         <div className={styles.legendRow}>
                             <span className={styles.legendDot} style={{ background: '#ef4444' }} />
-                            <span>Offline ({offlineCount})</span>
+                            <span>{t('common.offline')} ({offlineCount})</span>
                         </div>
                     </div>
 
