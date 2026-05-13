@@ -1,10 +1,5 @@
 import httpClient from "../configurations/httpClient";
 import { API } from "../configurations/configuration";
-import keycloak from "../configurations/keycloak";
-
-const authHeader = () => ({
-    Authorization: "Bearer " + keycloak.token,
-});
 
 export interface NotificationRes {
     id: string;
@@ -30,26 +25,23 @@ export const getNotifications = (page = 0, size = 20, read?: boolean) => {
     if (read !== undefined) params.read = read;
     return httpClient.get<{ code: number; data: PageResponse<NotificationRes> }>(
         API.NOTIFICATIONS,
-        { headers: authHeader(), params }
+        { params }
     );
 };
 
 export const getUnreadCount = () =>
     httpClient.get<{ code: number; data: number }>(
-        `${API.NOTIFICATIONS}/unread-count`,
-        { headers: authHeader() }
+        `${API.NOTIFICATIONS}/unread-count`
     );
 
 export const markRead = (id: string) =>
     httpClient.patch(
         `${API.NOTIFICATIONS}/${id}/read`,
         null,
-        { headers: authHeader() }
     );
 
 export const markAllRead = () =>
     httpClient.patch(
         `${API.NOTIFICATIONS}/read-all`,
         null,
-        { headers: authHeader() }
     );

@@ -176,6 +176,41 @@
 .topBarLeft  { display: flex; align-items: center; }
 .topBarRight { display: flex; align-items: center; gap: 8px; }
 
+.gridSizeControl {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 8px;
+}
+
+.gridSizeIcon { color: var(--text-4); }
+
+.gridSizeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    border-radius: 3px;
+    transition: background-color 0.15s;
+}
+
+.gridSizeBtn:hover:not(:disabled) { background-color: var(--accent-bg); }
+.gridSizeBtn:disabled { color: var(--text-5); cursor: not-allowed; }
+
+.gridSizeValue {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    min-width: 14px;
+    text-align: center;
+}
+
 .statusBadge {
     display: inline-flex;
     align-items: center;

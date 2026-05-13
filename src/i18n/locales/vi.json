@@ -6,6 +6,7 @@
     "alerts": "Cảnh báo",
     "profile": "Hồ sơ",
     "addUser": "Thêm người dùng",
+    "importCameras": "Import Camera",
     "lightMode": "Giao diện sáng",
     "darkMode": "Giao diện tối",
     "logout": "Đăng xuất",
@@ -45,7 +46,9 @@
     "dismiss": "Bỏ qua",
     "allDismissed": "Đã xử lý tất cả cảnh báo",
     "noCamera": "Không có camera",
-    "stream": "Stream {{num}}"
+    "stream": "Stream {{num}}",
+    "gridIncrease": "Tăng số luồng",
+    "gridDecrease": "Giảm số luồng"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -105,6 +108,27 @@
     "name": "Họ và tên",
     "email": "Email",
     "role": "Vai trò"
+  },
+  "importCamera": {
+    "title": "Import Camera từ File",
+    "uploadSection": "Chọn file để import",
+    "hint": "File phải có đúng 14 cột: name, ip, port, username, password, mode, rtspStreamUrl, longitude, latitude, address, ward, district, province, description",
+    "dropText": "Kéo thả file vào đây",
+    "dropSub": "hoặc",
+    "browse": "chọn file từ máy tính",
+    "acceptedFormats": "Hỗ trợ: .csv, .xlsx, .xls",
+    "upload": "Import",
+    "uploading": "Đang import...",
+    "uploadError": "Import thất bại. Vui lòng kiểm tra lại file.",
+    "resultTitle": "Kết quả import",
+    "totalRows": "Tổng dòng",
+    "successCount": "Thành công",
+    "failCount": "Thất bại",
+    "importedCameras": "Đã import {{count}} camera",
+    "errorsTitle": "{{count}} dòng có lỗi",
+    "colRow": "Dòng",
+    "colField": "Trường",
+    "colMessage": "Lỗi"
   },
   "addUser": {
     "title": "Thêm người dùng",

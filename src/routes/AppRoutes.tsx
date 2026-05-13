@@ -6,6 +6,7 @@ import AddUser from "../pages/AddUser";
 import Notifications from "../pages/Notifications";
 import Dashboard from "../pages/Dashboard";
 import MapView from "../pages/MapView";
+import ImportCamera from "../pages/ImportCamera";
 import ProtectedRoute from "./ProtectedRoute";
 import Layout from "../layouts/Layout";
 
@@ -23,6 +24,7 @@ const AppRoutes = () => {
                         <Route path="/notifications" element={<Notifications />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/add-user" element={<AddUser />} />
+                        <Route path="/import-cameras" element={<ImportCamera />} />
                     </Route>
                 </Route>
             </Routes>

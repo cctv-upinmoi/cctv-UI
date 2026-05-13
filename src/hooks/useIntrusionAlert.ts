@@ -14,6 +14,8 @@ export function useIntrusionAlert() {
     const clientRef                 = useRef<Client | null>(null);
 
     useEffect(() => {
+        if (!keycloak.authenticated) return;
+
         const client = new Client({
             brokerURL:       CONFIG.WS_URL,
             reconnectDelay:  5_000,   // tự reconnect sau 5s nếu mất kết nối
@@ -28,8 +30,7 @@ export function useIntrusionAlert() {
                 try {
                     await keycloak.updateToken(TOKEN_MIN_VALIDITY_SEC);
                 } catch {
-                    // Token hết hạn và không refresh được → redirect về login
-                    keycloak.login();
+                    client.deactivate();
                     return;
                 }
                 client.connectHeaders = {
@@ -69,8 +70,7 @@ export function useIntrusionAlert() {
                 const detail    = frame.headers['detail'] ?? frame.body;
 
                 if (errorType === 'UNAUTHORIZED') {
-                    console.warn('[WS] JWT rejected by server — redirecting to login');
-                    keycloak.login();
+                    setConnected(false);
                     return;
                 }
                 console.error('[WS] STOMP error:', errorType, detail);

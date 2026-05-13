@@ -43,6 +43,8 @@ export const IntrusionAlertProvider: React.FC<{ children: React.ReactNode }> = (
     }, []);
 
     useEffect(() => {
+        if (!keycloak.authenticated) return;
+
         const client = new Client({
             brokerURL:         CONFIG.WS_URL,
             reconnectDelay:    5_000,
@@ -53,7 +55,7 @@ export const IntrusionAlertProvider: React.FC<{ children: React.ReactNode }> = (
                 try {
                     await keycloak.updateToken(TOKEN_MIN_VALIDITY_SEC);
                 } catch {
-                    keycloak.login();
+                    client.deactivate();
                     return;
                 }
                 client.connectHeaders = {
@@ -94,7 +96,7 @@ export const IntrusionAlertProvider: React.FC<{ children: React.ReactNode }> = (
             onStompError: (frame) => {
                 const errorType = frame.headers['error-type'] ?? frame.headers['message'];
                 if (errorType === 'UNAUTHORIZED') {
-                    keycloak.login();
+                    setConnected(false);
                     return;
                 }
                 console.error('[WS] STOMP error:', errorType, frame.headers['detail'] ?? frame.body);

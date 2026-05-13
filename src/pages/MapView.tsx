@@ -4,6 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Map as MapIcon, Camera, MapPin, Wifi, WifiOff, Search, X, Layers } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useCameraStatusSSE } from '../hooks/useCameraStatusSSE';
 import styles from './MapView.module.css';
 import { getAllCameras } from '../services/cameraService';
 import type { CameraRes } from '../types/camera';
@@ -128,6 +129,14 @@ const MapView: React.FC = () => {
         setSelectedId(cam.id);
         setFlyTarget([cam.lat, cam.lng]);
     };
+
+    useCameraStatusSSE(({ cameras: updates }) => {
+        setCameras(prev => prev.map(cam => {
+            const update = updates.find(u => u.id === cam.id);
+            if (!update) return cam;
+            return { ...cam, status: update.status === 'OK' ? 'ONLINE' : 'OFFLINE' };
+        }));
+    });
 
     const handleMarkerClick = (cam: CameraLocation) => {
         setSelectedId(cam.id);

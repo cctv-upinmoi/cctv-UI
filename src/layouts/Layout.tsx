@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Cctv, Bell, User, UserPlus, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Map, Sun, Moon, Languages } from 'lucide-react';
+import { Cctv, Bell, User, UserPlus, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Map, Sun, Moon, Languages, FileUp } from 'lucide-react';
 import styles from './Layout.module.css';
 import { logOut } from '../services/authService';
 import keycloak from '../configurations/keycloak';
@@ -31,6 +31,7 @@ const Layout: React.FC = () => {
         { to: '/notifications', icon: <Bell size={20} />,           label: t('nav.alerts') },
         { to: '/profile',       icon: <User size={20} />,           label: t('nav.profile') },
         { to: '/add-user',      icon: <UserPlus size={20} />,       label: t('nav.addUser') },
+        { to: '/import-cameras', icon: <FileUp size={20} />,        label: t('nav.importCameras') },
     ];
 
     return (

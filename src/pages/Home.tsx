@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, ShieldX, Cctv, Pencil, Trash2, MapPin, X, Wifi, WifiOff } from 'lucide-react';
+import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, ShieldX, Cctv, Pencil, Trash2, MapPin, X, Wifi, WifiOff, LayoutGrid, Minus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useCameraStatusSSE } from '../hooks/useCameraStatusSSE';
 import styles from './Home.module.css';
 import NewCameraDialog from '../components/NewCameraDialog';
 import EditCameraDialog from '../components/EditCameraDialog';
@@ -13,7 +14,13 @@ import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
 import type { CameraRes } from '../types/camera';
 import type { ApiResponse } from '../types/common';
 
-const GRID_SIZE = 4;
+const MIN_GRID = 2;
+const MAX_GRID = 8;
+
+const loadGridSize = (): number => {
+    const saved = parseInt(localStorage.getItem('cctv-grid-size') ?? '', 10);
+    return saved >= MIN_GRID && saved <= MAX_GRID && saved % 2 === 0 ? saved : 4;
+};
 
 const Home: React.FC = () => {
     const { t } = useTranslation();
@@ -26,11 +33,32 @@ const Home: React.FC = () => {
     const [cameras, setCameras] = useState<CameraRes[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
+    const [gridSize, setGridSize] = useState<number>(loadGridSize);
     const [selectedCameras, setSelectedCameras] = useState<(CameraRes | null)[]>(
-        Array(GRID_SIZE).fill(null)
+        Array(loadGridSize()).fill(null)
     );
 
+    const changeGridSize = (delta: number) => {
+        setGridSize(prev => {
+            const next = Math.max(MIN_GRID, Math.min(MAX_GRID, prev + delta));
+            if (next === prev) return prev;
+            localStorage.setItem('cctv-grid-size', String(next));
+            setSelectedCameras(cur => {
+                if (next > cur.length) return [...cur, ...Array(next - cur.length).fill(null)];
+                return cur.slice(0, next);
+            });
+            return next;
+        });
+    };
+
     const { alerts, connected, dismissAlert, clearAll } = useIntrusionAlertContext();
+
+    useCameraStatusSSE(({ cameras: updates }) => {
+        setCameras(prev => prev.map(cam => {
+            const update = updates.find(u => u.id === cam.id);
+            return update ? { ...cam, status: update.status } : cam;
+        }));
+    });
 
     const fetchCameras = useCallback(async () => {
         setLoading(true);
@@ -187,6 +215,26 @@ const Home: React.FC = () => {
                         </label>
                     </div>
                     <div className={styles.topBarRight}>
+                        <div className={styles.gridSizeControl}>
+                            <LayoutGrid size={14} className={styles.gridSizeIcon} />
+                            <button
+                                className={styles.gridSizeBtn}
+                                onClick={() => changeGridSize(-2)}
+                                disabled={gridSize <= MIN_GRID}
+                                title={t('home.gridDecrease')}
+                            >
+                                <Minus size={12} />
+                            </button>
+                            <span className={styles.gridSizeValue}>{gridSize}</span>
+                            <button
+                                className={styles.gridSizeBtn}
+                                onClick={() => changeGridSize(2)}
+                                disabled={gridSize >= MAX_GRID}
+                                title={t('home.gridIncrease')}
+                            >
+                                <Plus size={12} />
+                            </button>
+                        </div>
                         <div className={`${styles.statusBadge} ${connected ? styles.statusConnected : styles.statusDisconnected}`}>
                             {connected
                                 ? <><Wifi size={12} /> {t('home.connected')}</>
@@ -196,7 +244,13 @@ const Home: React.FC = () => {
                     </div>
                 </div>
 
-                <div className={styles.videoGrid}>
+                <div
+                    className={styles.videoGrid}
+                    style={{
+                        gridTemplateColumns: `1fr 1fr`,
+                        gridTemplateRows: `repeat(${gridSize / 2}, 1fr)`,
+                    }}
+                >
                     {selectedCameras.map((camera, idx) => (
                         <div key={idx} className={styles.gridCell}>
                             {camera ? (
