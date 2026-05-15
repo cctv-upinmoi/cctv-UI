@@ -48,7 +48,9 @@
     "noCamera": "Không có camera",
     "stream": "Stream {{num}}",
     "gridIncrease": "Tăng số luồng",
-    "gridDecrease": "Giảm số luồng"
+    "gridDecrease": "Giảm số luồng",
+    "alertIntrusion": "Xâm nhập",
+    "alertProximity": "Tiếp cận"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -86,6 +88,9 @@
     "zone": "Vùng giám sát",
     "detectedAt": "Thời gian phát hiện",
     "noImage": "Không có ảnh",
+    "personCount": "Số người phát hiện",
+    "alertIntrusion": "Xâm nhập",
+    "alertProximity": "Tiếp cận",
     "justNow": "Vừa xong",
     "minutesAgo": "{{count}} phút trước",
     "hoursAgo": "{{count}} giờ trước",

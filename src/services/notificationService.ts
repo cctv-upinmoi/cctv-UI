@@ -10,6 +10,8 @@ export interface NotificationRes {
     imageUrl: string;
     read: boolean;
     createdAt: string;
+    alertType: string;
+    personCount: number;
 }
 
 export interface PageResponse<T> {

@@ -69,14 +69,16 @@ export const IntrusionAlertProvider: React.FC<{ children: React.ReactNode }> = (
                     try {
                         const event: IntrusionEvent = JSON.parse(message.body);
                         const alert: IntrusionAlert = {
-                            id:         event.id,
-                            cameraId:   event.cameraId,
-                            cameraName: event.cameraName,
-                            zoneName:   event.zoneName,
-                            detectedAt: event.detectedAt,
-                            imageUrl:   event.imageUrl,
-                            alertId:    crypto.randomUUID(),
-                            receivedAt: new Date(),
+                            id:          event.id,
+                            cameraId:    event.cameraId,
+                            cameraName:  event.cameraName,
+                            zoneName:    event.zoneName,
+                            detectedAt:  event.detectedAt,
+                            imageUrl:    event.imageUrl,
+                            alertType:   event.alertType ?? 'INTRUSION',
+                            personCount: event.personCount ?? 1,
+                            alertId:     crypto.randomUUID(),
+                            receivedAt:  new Date(),
                         };
 
                         setAlerts(prev => [alert, ...prev].slice(0, 20));

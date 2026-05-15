@@ -48,7 +48,9 @@
     "noCamera": "No cameras",
     "stream": "Stream {{num}}",
     "gridIncrease": "Increase streams",
-    "gridDecrease": "Decrease streams"
+    "gridDecrease": "Decrease streams",
+    "alertIntrusion": "Intrusion",
+    "alertProximity": "Proximity"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -86,6 +88,9 @@
     "zone": "Detection Zone",
     "detectedAt": "Detection Time",
     "noImage": "No image",
+    "personCount": "Persons detected",
+    "alertIntrusion": "Intrusion",
+    "alertProximity": "Proximity",
     "justNow": "Just now",
     "minutesAgo": "{{count}} min ago",
     "hoursAgo": "{{count}} hr ago",

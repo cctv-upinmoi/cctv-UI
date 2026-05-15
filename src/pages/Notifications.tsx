@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, Search, Camera, MapPin, Clock, ChevronRight, X, CheckCheck, ChevronLeft } from 'lucide-react';
+import { Bell, Search, Camera, MapPin, Clock, ChevronRight, X, CheckCheck, ChevronLeft, ShieldX, ShieldAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import styles from './Notifications.module.css';
 import * as notificationService from '../services/notificationService';
@@ -10,6 +10,11 @@ type StatusFilter = 'ALL' | 'UNREAD' | 'READ';
 type DateFilter  = 'ALL' | 'TODAY' | '7D' | '30D' | 'CUSTOM';
 
 const PAGE_SIZE = 20;
+
+const ALERT_TYPE_CONFIG = {
+    INTRUSION: { color: '#ef4444', Icon: ShieldX,    labelVi: 'Xâm nhập',  labelEn: 'Intrusion' },
+    PROXIMITY: { color: '#eab308', Icon: ShieldAlert, labelVi: 'Tiếp cận', labelEn: 'Proximity' },
+} as const;
 
 const Notifications: React.FC = () => {
     const { t, i18n } = useTranslation();
@@ -264,6 +269,15 @@ const Notifications: React.FC = () => {
                                         <div className={styles.itemBody}>
                                             <div className={styles.itemTop}>
                                                 <span className={styles.camName}>{n.cameraName}</span>
+                                                {(() => {
+                                                    const cfg = ALERT_TYPE_CONFIG[n.alertType as keyof typeof ALERT_TYPE_CONFIG] ?? ALERT_TYPE_CONFIG.INTRUSION;
+                                                    const label = i18n.language === 'vi' ? cfg.labelVi : cfg.labelEn;
+                                                    return (
+                                                        <span className={styles.badge} style={{ color: cfg.color, borderColor: cfg.color }}>
+                                                            {label}
+                                                        </span>
+                                                    );
+                                                })()}
                                             </div>
                                             <div className={styles.itemBottom}>
                                                 <span className={styles.zoneName}>{n.zoneName}</span>
@@ -325,6 +339,18 @@ const Notifications: React.FC = () => {
                                 </div>
                             )}
 
+                            {(() => {
+                                const cfg = ALERT_TYPE_CONFIG[selected.alertType as keyof typeof ALERT_TYPE_CONFIG] ?? ALERT_TYPE_CONFIG.INTRUSION;
+                                const label = i18n.language === 'vi' ? cfg.labelVi : cfg.labelEn;
+                                const { Icon } = cfg;
+                                return (
+                                    <span className={styles.detailBadge} style={{ color: cfg.color, borderColor: cfg.color, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                        <Icon size={13} />
+                                        {label}
+                                    </span>
+                                );
+                            })()}
+
                             <div className={styles.infoCard}>
                                 <div className={styles.infoRow}>
                                     <Camera size={14} className={styles.infoIcon} />
@@ -347,6 +373,15 @@ const Notifications: React.FC = () => {
                                         <span className={styles.infoValue}>{formatFull(selected.detectedAt)}</span>
                                     </div>
                                 </div>
+                                {selected.personCount > 0 && (
+                                    <div className={styles.infoRow}>
+                                        <ShieldAlert size={14} className={styles.infoIcon} />
+                                        <div className={styles.infoContent}>
+                                            <span className={styles.infoLabel}>{t('notifications.personCount')}</span>
+                                            <span className={styles.infoValue}>{selected.personCount}</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

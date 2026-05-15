@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldAlert, X } from 'lucide-react';
+import { ShieldAlert, ShieldX, X } from 'lucide-react';
 import styles from './IntrusionAlertToast.module.css';
 import type { IntrusionAlert } from '../types/intrusion';
+import { useTranslation } from 'react-i18next';
 
-const ALERT_COLOR = '#ef4444';
+const ALERT_CONFIG = {
+    INTRUSION: {
+        color:  '#ef4444',
+        Icon:   ShieldX,
+        labelKey: 'home.alertIntrusion',
+    },
+    PROXIMITY: {
+        color:  '#eab308',
+        Icon:   ShieldAlert,
+        labelKey: 'home.alertProximity',
+    },
+} as const;
 
 interface Props {
     alerts:     IntrusionAlert[];
@@ -13,15 +25,17 @@ interface Props {
 }
 
 const IntrusionAlertToast: React.FC<Props> = ({ alerts, onDismiss, onClearAll }) => {
+    const { t } = useTranslation();
+
     return (
         <div className={styles.container}>
             {alerts.length > 0 && (
                 <div className={styles.alertList}>
                     {alerts.length > 1 && (
                         <div className={styles.listHeader}>
-                            <span>{alerts.length} cảnh báo</span>
+                            <span>{alerts.length} {t('home.activeAlerts')}</span>
                             <button className={styles.clearAllBtn} onClick={onClearAll}>
-                                Xóa tất cả
+                                {t('home.clearAll')}
                             </button>
                         </div>
                     )}
@@ -35,7 +49,11 @@ const IntrusionAlertToast: React.FC<Props> = ({ alerts, onDismiss, onClearAll })
 };
 
 const AlertCard: React.FC<{ alert: IntrusionAlert; onDismiss: (id: string) => void }> = ({ alert, onDismiss }) => {
+    const { t } = useTranslation();
     const [progress, setProgress] = useState(100);
+
+    const cfg = ALERT_CONFIG[alert.alertType] ?? ALERT_CONFIG.INTRUSION;
+    const { color, Icon, labelKey } = cfg;
 
     useEffect(() => {
         const start = Date.now();
@@ -55,18 +73,18 @@ const AlertCard: React.FC<{ alert: IntrusionAlert; onDismiss: (id: string) => vo
         <div className={styles.card}>
             <div
                 className={styles.progressBar}
-                style={{ width: `${progress}%`, backgroundColor: ALERT_COLOR }}
+                style={{ width: `${progress}%`, backgroundColor: color }}
             />
             <div className={styles.cardBody}>
-                <ShieldAlert size={20} color={ALERT_COLOR} className={styles.alertIcon} />
+                <Icon size={20} color={color} className={styles.alertIcon} />
                 <div className={styles.content}>
                     <div className={styles.topRow}>
                         <span className={styles.cameraName}>{alert.cameraName}</span>
                         <span
                             className={styles.zoneTypeBadge}
-                            style={{ backgroundColor: ALERT_COLOR }}
+                            style={{ backgroundColor: color }}
                         >
-                            Xâm nhập
+                            {t(labelKey)}
                         </span>
                     </div>
                     <div className={styles.bottomRow}>
