@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import "./i18n";
 import App from "./App.tsx";
 import keycloak from "./configurations/keycloak";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import { IntrusionAlertProvider } from "./contexts/IntrusionAlertContext";
 
 const Main = () => {
   const [keycloakInitialized, setKeycloakInitialized] = useState(false);
@@ -15,6 +18,7 @@ const Main = () => {
     keycloak
       .init({
         onLoad: "check-sso",
+        checkLoginIframe: false,
       })
       .then((authenticated) => {
         setKeycloakInitialized(true);
@@ -23,7 +27,7 @@ const Main = () => {
         } else {
           console.log("User is not authenticated. Token is undefined.");
           // uncomment the line below if you want to force login immediately
-          keycloak.login();
+          // keycloak.login();
         }
       })
       .catch((err) => {
@@ -66,7 +70,7 @@ const Main = () => {
     );
   }
 
-  return <App />;
+  return <ThemeProvider><IntrusionAlertProvider><App /></IntrusionAlertProvider></ThemeProvider>;
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);

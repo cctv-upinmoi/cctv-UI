@@ -1,27 +1,122 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, Cctv, User } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, ShieldX, Cctv, Pencil, Trash2, MapPin, X, Wifi, WifiOff, LayoutGrid, Minus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useCameraStatusSSE } from '../hooks/useCameraStatusSSE';
 import styles from './Home.module.css';
 import NewCameraDialog from '../components/NewCameraDialog';
+import EditCameraDialog from '../components/EditCameraDialog';
+import DeleteConfirmDialog from '../components/DeleteConfirmDialog';
+import ZoneEditorDialog from '../components/ZoneEditorDialog';
+import IntrusionAlertToast from '../components/IntrusionAlertToast';
+import CameraStreamCell from '../components/CameraStreamCell';
+import { getAllCameras } from '../services/cameraService';
+import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
+import type { CameraRes } from '../types/camera';
+import type { ApiResponse } from '../types/common';
 
-const cameras = [
-    { id: 1, name: 'Cam1', desc: 'NTCIP Ext RTSP' },
-    { id: 2, name: 'Cam2', desc: 'MJPEG Ext' },
-    { id: 3, name: 'Cam3', desc: 'RTSP Ext' },
-    { id: 4, name: 'Cam4', desc: 'External IP' },
-    { id: 5, name: 'Cam5', desc: 'Internal IP' },
-    { id: 6, name: 'Cam6', desc: 'External IP' },
-    { id: 7, name: 'Cam7', desc: 'External IP' },
-];
+const MIN_GRID = 2;
+const MAX_GRID = 8;
+
+const loadGridSize = (): number => {
+    const saved = parseInt(localStorage.getItem('cctv-grid-size') ?? '', 10);
+    return saved >= MIN_GRID && saved <= MAX_GRID && saved % 2 === 0 ? saved : 4;
+};
 
 const Home: React.FC = () => {
-    const navigate = useNavigate();
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'Cameras' | 'Sequences'>('Cameras');
     const [controlMode, setControlMode] = useState(false);
     const [isAddCameraOpen, setIsAddCameraOpen] = useState(false);
+    const [editingCamera, setEditingCamera] = useState<CameraRes | null>(null);
+    const [deletingCamera, setDeletingCamera] = useState<CameraRes | null>(null);
+    const [zoneCamera, setZoneCamera] = useState<CameraRes | null>(null);
+    const [cameras, setCameras] = useState<CameraRes[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [gridSize, setGridSize] = useState<number>(loadGridSize);
+    const [selectedCameras, setSelectedCameras] = useState<(CameraRes | null)[]>(
+        Array(loadGridSize()).fill(null)
+    );
+
+    const changeGridSize = (delta: number) => {
+        setGridSize(prev => {
+            const next = Math.max(MIN_GRID, Math.min(MAX_GRID, prev + delta));
+            if (next === prev) return prev;
+            localStorage.setItem('cctv-grid-size', String(next));
+            setSelectedCameras(cur => {
+                if (next > cur.length) return [...cur, ...Array(next - cur.length).fill(null)];
+                return cur.slice(0, next);
+            });
+            return next;
+        });
+    };
+
+    const { alerts, connected, dismissAlert, clearAll } = useIntrusionAlertContext();
+
+    useCameraStatusSSE(({ cameras: updates }) => {
+        setCameras(prev => prev.map(cam => {
+            const update = updates.find(u => u.id === cam.id);
+            return update ? { ...cam, status: update.status } : cam;
+        }));
+    });
+
+    const fetchCameras = useCallback(async () => {
+        setLoading(true);
+        try {
+            const res = await getAllCameras();
+            const body = res.data as ApiResponse<CameraRes[]>;
+            setCameras(body.data ?? []);
+        } catch {
+            // ignore errors silently, list stays empty
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchCameras();
+    }, [fetchCameras]);
+
+    const filteredCameras = cameras.filter(c =>
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.ip.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const handleCameraClick = (camera: CameraRes) => {
+        setSelectedCameras(prev => {
+            const existingIdx = prev.findIndex(c => c?.id === camera.id);
+            if (existingIdx !== -1) {
+                const next = [...prev];
+                next[existingIdx] = null;
+                return next;
+            }
+            const emptyIdx = prev.findIndex(c => c === null);
+            if (emptyIdx === -1) return prev;
+            const next = [...prev];
+            next[emptyIdx] = camera;
+            return next;
+        });
+    };
+
+    const removeFromSlot = (slotIdx: number) => {
+        setSelectedCameras(prev => {
+            const next = [...prev];
+            next[slotIdx] = null;
+            return next;
+        });
+    };
+
+    const isCameraActive = (camera: CameraRes) =>
+        selectedCameras.some(c => c?.id === camera.id);
 
     return (
         <div className={styles.container}>
+            <IntrusionAlertToast
+                alerts={alerts}
+                connected={connected}
+                onDismiss={dismissAlert}
+                onClearAll={clearAll}
+            />
             {/* Sidebar */}
             <div className={styles.sidebar}>
                 <div className={styles.tabs}>
@@ -29,21 +124,21 @@ const Home: React.FC = () => {
                         className={`${styles.tab} ${activeTab === 'Cameras' ? styles.active : ''}`}
                         onClick={() => setActiveTab('Cameras')}
                     >
-                        Cameras
+                        {t('home.cameras')}
                     </div>
-                    {/* <div 
-            className={`${styles.tab} ${activeTab === 'Sequences' ? styles.active : ''}`}
-            onClick={() => setActiveTab('Sequences')}
-          >
-            Sequences
-          </div> */}
                     <CircleHelp className={styles.helpIcon} size={18} />
                 </div>
 
                 <div className={styles.searchSection}>
                     <div className={styles.searchBox}>
                         <Search className={styles.searchBoxIcon} />
-                        <input type="text" placeholder="Search" className={styles.searchInput} />
+                        <input
+                            type="text"
+                            placeholder={t('common.search')}
+                            className={styles.searchInput}
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                        />
                     </div>
                     <SlidersHorizontal className={styles.filterIcon} size={18} />
                 </div>
@@ -55,12 +150,48 @@ const Home: React.FC = () => {
                 </div>
 
                 <div className={styles.cameraList}>
-                    {cameras.map((camera) => (
-                        <div key={camera.id} className={styles.cameraItem}>
-                            <ShieldCheck className={styles.statusIcon} size={18} />
+                    {loading && (
+                        <div className={styles.loadingText}>{t('common.loading')}</div>
+                    )}
+                    {!loading && filteredCameras.length === 0 && (
+                        <div className={styles.emptyText}>{t('home.noCamera')}</div>
+                    )}
+                    {filteredCameras.map((camera) => (
+                        <div
+                            key={camera.id}
+                            className={`${styles.cameraItem} ${isCameraActive(camera) ? styles.cameraItemActive : ''}`}
+                            onClick={() => handleCameraClick(camera)}
+                        >
+                            {camera.status === 'OK'
+                                ? <ShieldCheck className={styles.statusIcon} size={18} />
+                                : <ShieldX className={styles.statusIconNok} size={18} />
+                            }
                             <div className={styles.cameraInfo}>
                                 <span className={styles.cameraName}>{camera.name}</span>
-                                <span className={styles.cameraDesc}>{camera.desc}</span>
+                                <span className={styles.cameraDesc}>{camera.ip}</span>
+                            </div>
+                            <div className={styles.cameraActions}>
+                                <button
+                                    className={styles.actionBtn}
+                                    title="Vẽ vùng cấm"
+                                    onClick={e => { e.stopPropagation(); setZoneCamera(camera); }}
+                                >
+                                    <MapPin size={14} />
+                                </button>
+                                <button
+                                    className={styles.actionBtn}
+                                    title="Sửa"
+                                    onClick={e => { e.stopPropagation(); setEditingCamera(camera); }}
+                                >
+                                    <Pencil size={14} />
+                                </button>
+                                <button
+                                    className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
+                                    title="Xóa"
+                                    onClick={e => { e.stopPropagation(); setDeletingCamera(camera); }}
+                                >
+                                    <Trash2 size={14} />
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -80,25 +211,74 @@ const Home: React.FC = () => {
                                 />
                                 <span className={styles.slider}></span>
                             </div>
-                            Control Mode
+                            {t('home.controlMode')}
                         </label>
                     </div>
                     <div className={styles.topBarRight}>
-                        <button className={styles.profileBtn} onClick={() => navigate('/profile')}>
-                            <User size={18} />
-                            <span>Profile</span>
-                        </button>
+                        <div className={styles.gridSizeControl}>
+                            <LayoutGrid size={14} className={styles.gridSizeIcon} />
+                            <button
+                                className={styles.gridSizeBtn}
+                                onClick={() => changeGridSize(-2)}
+                                disabled={gridSize <= MIN_GRID}
+                                title={t('home.gridDecrease')}
+                            >
+                                <Minus size={12} />
+                            </button>
+                            <span className={styles.gridSizeValue}>{gridSize}</span>
+                            <button
+                                className={styles.gridSizeBtn}
+                                onClick={() => changeGridSize(2)}
+                                disabled={gridSize >= MAX_GRID}
+                                title={t('home.gridIncrease')}
+                            >
+                                <Plus size={12} />
+                            </button>
+                        </div>
+                        <div className={`${styles.statusBadge} ${connected ? styles.statusConnected : styles.statusDisconnected}`}>
+                            {connected
+                                ? <><Wifi size={12} /> {t('home.connected')}</>
+                                : <><WifiOff size={12} /> {t('home.disconnected')}</>
+                            }
+                        </div>
                     </div>
                 </div>
 
-                <div className={styles.videoGrid}>
-                    {[1, 2, 3, 4].map((streamNum) => (
-                        <div key={streamNum} className={styles.gridCell}>
-                            <div className={styles.streamLabel}>Stream {streamNum}</div>
-                            <div className={styles.placeholder}>
-                                <Cctv className={styles.placeholderIcon} size={32} />
-                                <span className={styles.placeholderText}>Select camera to play stream</span>
-                            </div>
+                <div
+                    className={styles.videoGrid}
+                    style={{
+                        gridTemplateColumns: `1fr 1fr`,
+                        gridTemplateRows: `repeat(${gridSize / 2}, 1fr)`,
+                    }}
+                >
+                    {selectedCameras.map((camera, idx) => (
+                        <div key={idx} className={styles.gridCell}>
+                            {camera ? (
+                                <>
+                                    <div className={styles.streamLabel}>
+                                        {camera.name}
+                                        <button
+                                            className={styles.streamCloseBtn}
+                                            onClick={() => removeFromSlot(idx)}
+                                            title={t('common.close')}
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                    <CameraStreamCell
+                                        cameraName={camera.name}
+                                        zones={camera.zones}
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    <div className={styles.streamLabel}>{t('home.stream', { num: idx + 1 })}</div>
+                                    <div className={styles.placeholder}>
+                                        <Cctv className={styles.placeholderIcon} size={32} />
+                                        <span className={styles.placeholderText}>{t('home.selectCamera')}</span>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -106,7 +286,32 @@ const Home: React.FC = () => {
 
             {/* Dialogs */}
             {isAddCameraOpen && (
-                <NewCameraDialog onClose={() => setIsAddCameraOpen(false)} />
+                <NewCameraDialog
+                    onClose={() => setIsAddCameraOpen(false)}
+                    onCreated={fetchCameras}
+                />
+            )}
+            {editingCamera && (
+                <EditCameraDialog
+                    camera={editingCamera}
+                    onClose={() => setEditingCamera(null)}
+                    onUpdated={fetchCameras}
+                />
+            )}
+            {deletingCamera && (
+                <DeleteConfirmDialog
+                    cameraId={deletingCamera.id}
+                    cameraName={deletingCamera.name}
+                    onClose={() => setDeletingCamera(null)}
+                    onDeleted={fetchCameras}
+                />
+            )}
+            {zoneCamera && (
+                <ZoneEditorDialog
+                    camera={zoneCamera}
+                    onClose={() => setZoneCamera(null)}
+                    onSaved={fetchCameras}
+                />
             )}
         </div>
     );

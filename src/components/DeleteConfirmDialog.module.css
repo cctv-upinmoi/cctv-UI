@@ -1,0 +1,65 @@
+.backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: var(--overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+}
+
+.dialog {
+    background-color: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 400px;
+    max-width: 95vw;
+    padding: 28px 24px 20px;
+    box-shadow: 0 4px 16px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.iconWrapper {
+    background-color: var(--danger-bg);
+    border-radius: 50%;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+.title { font-size: 17px; font-weight: 600; color: var(--text-1); margin-bottom: 8px; }
+
+.message { font-size: 14px; color: var(--text-3); line-height: 1.5; margin-bottom: 20px; }
+
+.error {
+    color: var(--danger);
+    font-size: 13px;
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    background: var(--danger-bg);
+    border-radius: 4px;
+    border: 1px solid var(--danger-border);
+    width: 100%;
+}
+
+.footer { display: flex; gap: 12px; width: 100%; justify-content: flex-end; }
+
+.btn {
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+}
+
+.btnCancel { background-color: var(--bg-input); color: var(--text-2); }
+.btnCancel:hover { background-color: var(--bg-hover); }
+
+.btnDelete { background-color: var(--danger); color: #fff; }
+.btnDelete:hover { background-color: #b91c1c; }
+
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }

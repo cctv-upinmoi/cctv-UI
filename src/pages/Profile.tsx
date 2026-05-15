@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Shield, Mail, ArrowLeft, UserPlus } from 'lucide-react';
+import { User, Shield, Mail, UserPlus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from './Profile.module.css';
 import { getMyProfile } from '../services/userService';
 import type { UserProfile } from '../types/user';
 
 const Profile: React.FC = () => {
     const navigate = useNavigate();
-
+    const { t } = useTranslation();
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -24,19 +25,18 @@ const Profile: React.FC = () => {
                 }
             } catch (err) {
                 console.error("Failed to fetch profile data", err);
-                setError("Could not load user profile.");
+                setError(t('profile.error'));
             } finally {
                 setLoading(false);
             }
         };
-
         fetchProfile();
-    }, []);
+    }, [t]);
 
     if (loading) {
         return (
             <div className={styles.container} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <p>Loading profile...</p>
+                <p>{t('profile.loading')}</p>
             </div>
         );
     }
@@ -44,10 +44,7 @@ const Profile: React.FC = () => {
     if (error || !user) {
         return (
             <div className={styles.container} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <p>{error || "Profile not found"}</p>
-                <button className={styles.backBtn} style={{ marginTop: 16 }} onClick={() => navigate('/')}>
-                    <ArrowLeft size={24} /> Back to Home
-                </button>
+                <p>{error || t('profile.error')}</p>
             </div>
         );
     }
@@ -57,14 +54,11 @@ const Profile: React.FC = () => {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <button className={styles.backBtn} onClick={() => navigate('/')}>
-                    <ArrowLeft size={24} />
-                </button>
-                <h1 className={styles.title}>User Profile</h1>
+                <h1 className={styles.title}>{t('profile.title')}</h1>
                 <div className={styles.actions}>
                     <button className={styles.addUserBtn} onClick={() => navigate('/add-user')}>
                         <UserPlus size={20} />
-                        <span>Add User</span>
+                        <span>{t('profile.addUser')}</span>
                     </button>
                 </div>
             </div>
@@ -83,14 +77,14 @@ const Profile: React.FC = () => {
                         <div className={styles.detailItem}>
                             <Mail className={styles.detailIcon} size={20} />
                             <div className={styles.detailInfo}>
-                                <label>Email Address</label>
+                                <label>{t('profile.email')}</label>
                                 <span>{user.email}</span>
                             </div>
                         </div>
                         <div className={styles.detailItem}>
                             <Shield className={styles.detailIcon} size={20} />
                             <div className={styles.detailInfo}>
-                                <label>Role</label>
+                                <label>{t('profile.role')}</label>
                                 <span>{user.role || 'User'}</span>
                             </div>
                         </div>
