@@ -21,7 +21,6 @@ export const CONFIG = {
 };
 
 export const API = {
-    REGISTRATION:             'users/register',
     MY_PROFILE:               'users',
     CAMERAS:                  'cameras',
     NOTIFICATIONS:            'notifications',
