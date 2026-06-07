@@ -25,6 +25,7 @@ export const API = {
     CAMERAS:                  'cameras',
     NOTIFICATIONS:            'notifications',
     NOTIFICATION_PREFERENCES: 'notifications/preferences',
+    JOBS:                     'jobs',
     ANALYTICS:                'analytics',
 };
 

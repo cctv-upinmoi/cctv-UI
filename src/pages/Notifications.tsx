@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, Search, Camera, MapPin, Clock, ChevronRight, X, CheckCheck, ChevronLeft, ShieldX, ShieldAlert } from 'lucide-react';
+import { Bell, Search, Camera, MapPin, Clock, ChevronRight, X, CheckCheck, ChevronLeft, ShieldX, HardHat, Shirt, Smile } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import styles from './Notifications.module.css';
 import * as notificationService from '../services/notificationService';
@@ -12,8 +12,10 @@ type DateFilter  = 'ALL' | 'TODAY' | '7D' | '30D' | 'CUSTOM';
 const PAGE_SIZE = 20;
 
 const ALERT_TYPE_CONFIG = {
-    INTRUSION: { color: '#ef4444', Icon: ShieldX,    labelVi: 'Xâm nhập',  labelEn: 'Intrusion' },
-    PROXIMITY: { color: '#eab308', Icon: ShieldAlert, labelVi: 'Tiếp cận', labelEn: 'Proximity' },
+    INTRUSION:      { color: '#ef4444', Icon: ShieldX,  labelVi: 'Xâm nhập vùng cấm',      labelEn: 'Intrusion' },
+    NO_HARDHAT:     { color: '#f97316', Icon: HardHat,  labelVi: 'Không đội mũ bảo hiểm',  labelEn: 'No Hardhat' },
+    NO_SAFETY_VEST: { color: '#f59e0b', Icon: Shirt,    labelVi: 'Không mặc áo bảo hộ',    labelEn: 'No Safety Vest' },
+    NO_MASK:        { color: '#8b5cf6', Icon: Smile,    labelVi: 'Không đeo khẩu trang',    labelEn: 'No Mask' },
 } as const;
 
 const Notifications: React.FC = () => {

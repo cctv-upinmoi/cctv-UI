@@ -1,4 +1,14 @@
 /* ── Page shell ──────────────────────────────────────────────────────────── */
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-base);
+    color: var(--text-2);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow: hidden;
+}
+
 .page {
     display: flex;
     flex-direction: column;
@@ -608,6 +618,612 @@
     transition: opacity 0.15s;
 }
 .deleteBtn:hover { opacity: 0.88; }
+
+/* ── New component classes ───────────────────────────────────────────────── */
+
+.headerRight { display: flex; align-items: center; gap: 10px; }
+
+.searchBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.searchBox .searchIcon {
+    position: absolute;
+    left: 10px;
+    color: var(--text-5);
+    pointer-events: none;
+}
+.searchInput {
+    padding: 8px 12px 8px 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.83rem;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.15s;
+}
+.searchInput:focus { border-color: var(--accent); }
+.searchInput::placeholder { color: var(--text-5); }
+
+/* ── Tabs ──────────────────────────────────────────────────────────────────── */
+.tabBar {
+    display: flex;
+    gap: 4px;
+    padding: 12px 24px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-surface);
+    flex-shrink: 0;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--text-4);
+    font-size: 0.84rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+    border-radius: 6px 6px 0 0;
+}
+.tab:hover { color: var(--text-1); background: var(--bg-input); }
+.tabActive {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+}
+
+.tabCount {
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    font-size: 0.72rem;
+    color: var(--text-3);
+}
+.tabActive .tabCount {
+    background: rgba(99,102,241,.12);
+    border-color: rgba(99,102,241,.3);
+    color: var(--accent);
+}
+
+.tabContent {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Table actions bar ─────────────────────────────────────────────────────── */
+.tableActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-surface);
+    flex-shrink: 0;
+}
+
+.addBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.addBtn:hover { opacity: 0.88; }
+
+.empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-4);
+    font-size: 0.9rem;
+    padding: 60px 20px;
+}
+
+/* ── Table ─────────────────────────────────────────────────────────────────── */
+.table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.table thead tr { background: var(--bg-surface); border-bottom: 1px solid var(--border); }
+.table thead th {
+    padding: 11px 20px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-4);
+    white-space: nowrap;
+}
+.table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+.table tbody tr:hover { background: var(--bg-input); }
+.table td { padding: 14px 20px; vertical-align: middle; }
+
+/* ── Camera chip ────────────────────────────────────────────────────────────── */
+.camChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: 0.8rem;
+}
+
+.dimText { color: var(--text-5); font-size: 0.8rem; font-style: italic; }
+
+/* ── Status badges ──────────────────────────────────────────────────────────── */
+.badgeOn {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(34,197,94,.12);
+    border: 1px solid rgba(34,197,94,.25);
+    color: #22c55e;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.badgeOff {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-4);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: 0.75rem;
+}
+
+/* ── Action icon buttons ────────────────────────────────────────────────────── */
+.iconBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-3);
+}
+.iconBtn:hover { background: var(--bg-input); color: var(--text-1); }
+.iconBtnDanger:hover { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); color: #ef4444; }
+
+/* ── Subscriber cell ────────────────────────────────────────────────────────── */
+.subMeta {
+    display: flex;
+    gap: 10px;
+    margin-top: 3px;
+    color: var(--text-4);
+    font-size: 0.75rem;
+}
+.subMeta span { display: inline-flex; align-items: center; gap: 3px; }
+
+.jobCount {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(99,102,241,.1);
+    border: 1px solid rgba(99,102,241,.2);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+/* ── Drawer (overlay + panel) ───────────────────────────────────────────────── */
+.drawerOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 200;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.drawerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-1);
+    flex-shrink: 0;
+}
+
+.closeBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    transition: all 0.15s;
+}
+.closeBtn:hover { background: var(--bg-input); color: var(--text-1); }
+
+/* ── Form controls ──────────────────────────────────────────────────────────── */
+.label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    margin-top: 14px;
+}
+.label:first-child { margin-top: 0; }
+
+.input {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+.input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--text-5); }
+
+.select {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    transition: border-color 0.15s;
+}
+.select:focus { border-color: var(--accent); }
+
+.chipGroup { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-2);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+}
+.chip:hover { border-color: var(--accent); color: var(--text-1); }
+.chipActive {
+    background: rgba(99,102,241,.12);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.checkRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-2);
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.error {
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: rgba(239,68,68,.1);
+    border: 1px solid rgba(239,68,68,.25);
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+/* ── Job list in subscriber drawer ─────────────────────────────────────────── */
+.jobList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px;
+    background: var(--bg-input);
+}
+
+.jobItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.12s;
+}
+.jobItem:hover { background: var(--bg-surface); border-color: var(--border); }
+.jobItemSelected {
+    background: rgba(99,102,241,.08);
+    border-color: rgba(99,102,241,.3);
+}
+
+.jobItemCheck {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    color: var(--accent);
+}
+.jobItemSelected .jobItemCheck {
+    border-color: var(--accent);
+    background: rgba(99,102,241,.15);
+}
+
+.jobItemName { font-size: 0.85rem; font-weight: 500; color: var(--text-1); }
+.jobItemMeta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-4);
+    margin-top: 2px;
+}
+
+/* ── Job multi-select dropdown ──────────────────────────────────────────────── */
+.selectedJobTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.selectedJobTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(99,102,241,.12);
+    border: 1px solid rgba(99,102,241,.3);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.tagRemove {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--accent);
+    padding: 0;
+    opacity: 0.7;
+    line-height: 1;
+}
+.tagRemove:hover { opacity: 1; }
+
+.jobDropdown {
+    position: relative;
+}
+
+.jobDropTrigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-2);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    text-align: left;
+}
+.jobDropTrigger:hover { border-color: var(--accent); }
+.jobDropTriggerOpen  { border-color: var(--accent); }
+
+.jobDropLabel { flex: 1; color: var(--text-2); }
+
+.jobDropChevron {
+    color: var(--text-5);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+.jobDropChevronUp { transform: rotate(180deg); }
+
+.jobDropPanel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    z-index: 50;
+    overflow: hidden;
+}
+
+.jobDropSearch {
+    position: relative;
+    padding: 10px 10px 6px;
+    border-bottom: 1px solid var(--border);
+}
+.jobDropSearchIcon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-30%);
+    color: var(--text-5);
+    pointer-events: none;
+}
+.jobDropSearchInput {
+    width: 100%;
+    padding: 7px 10px 7px 30px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.82rem;
+    outline: none;
+    box-sizing: border-box;
+}
+.jobDropSearchInput:focus { border-color: var(--accent); }
+
+.jobDropOptions {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.jobDropOption {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+.jobDropOption:hover { background: var(--bg-input); }
+.jobDropOptionSelected { background: rgba(99,102,241,.06); }
+
+.jobDropCheck {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--accent);
+    transition: all 0.15s;
+}
+.jobDropCheckActive {
+    border-color: var(--accent);
+    background: rgba(99,102,241,.15);
+}
+
+.jobDropInfo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.jobDropName {
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--text-1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.jobDropMeta {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.73rem;
+    color: var(--text-4);
+}
+
+.jobDropEmpty {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-5);
+    font-size: 0.82rem;
+}
+
+.jobDropFooter {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+}
+.jobDropDone {
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.jobDropDone:hover { opacity: 0.88; }
+
+/* ── Save button ────────────────────────────────────────────────────────────── */
+.saveBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.saveBtn:hover:not(:disabled) { opacity: 0.88; }
+.saveBtn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 /* ── Confirm dialog ──────────────────────────────────────────────────────── */
 .confirmDialog {

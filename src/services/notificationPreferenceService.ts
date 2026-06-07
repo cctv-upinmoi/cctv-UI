@@ -1,39 +1,36 @@
 import httpClient from "../configurations/httpClient";
 import { API } from "../configurations/configuration";
-import type { NotificationPreference } from "../types/notificationPreference";
+import type { Subscriber } from "../types/notificationPreference";
 
 const BASE = API.NOTIFICATION_PREFERENCES;
 
-export const getPreference = () =>
-    httpClient.get<{ code: number; data: NotificationPreference | null }>(BASE);
+export interface SubscriberRequest {
+    userId?: string;
+    email: string | null;
+    telegramChatId: string | null;
+    channels: string[];
+    enabled: boolean;
+    jobIds: string[];
+}
 
-export const upsertPreference = (data: NotificationPreference) =>
-    httpClient.put<{ code: number; data: NotificationPreference }>(BASE, data);
+export const getPreference = () =>
+    httpClient.get<{ code: number; data: Subscriber | null }>(BASE);
+
+export const upsertPreference = (data: SubscriberRequest) =>
+    httpClient.put<{ code: number; data: Subscriber }>(BASE, data);
 
 export const deletePreference = () =>
     httpClient.delete(BASE);
 
 export const togglePreference = () =>
-    httpClient.patch<{ code: number; data: NotificationPreference }>(`${BASE}/toggle`, null);
-
-export const toggleSubscription = (subscriptionId: string) =>
-    httpClient.patch<{ code: number; data: NotificationPreference }>(
-        `${BASE}/subscription/${subscriptionId}/toggle`,
-        null
-    );
+    httpClient.patch<{ code: number; data: Subscriber }>(`${BASE}/toggle`, null);
 
 // Admin endpoints
 export const getAllPreferences = () =>
-    httpClient.get<{ code: number; data: NotificationPreference[] }>(`${BASE}/admin/all`);
+    httpClient.get<{ code: number; data: Subscriber[] }>(`${BASE}/admin/all`);
 
-export const adminUpsertPreference = (userId: string, data: NotificationPreference) =>
-    httpClient.put<{ code: number; data: NotificationPreference }>(`${BASE}/admin/${userId}`, data);
+export const adminUpsertPreference = (userId: string, data: SubscriberRequest) =>
+    httpClient.put<{ code: number; data: Subscriber }>(`${BASE}/admin/${userId}`, data);
 
 export const adminDeletePreference = (userId: string) =>
     httpClient.delete(`${BASE}/admin/${userId}`);
-
-export const adminToggleSubscription = (userId: string, subscriptionId: string) =>
-    httpClient.patch<{ code: number; data: NotificationPreference }>(
-        `${BASE}/admin/${userId}/subscription/${subscriptionId}/toggle`,
-        null
-    );

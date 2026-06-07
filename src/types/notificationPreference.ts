@@ -1,35 +1,41 @@
-export interface Subscription {
-    subscriptionId?: string;
+// ── Job ───────────────────────────────────────────────────────────────────────
+
+export interface Job {
+    id?: string;
+    name: string;
     cameraId: string;
     cameraName: string;
-    /** empty = all zones */
-    zoneNames: string[];
     alertTypes: string[];
-    channels: string[];
     enabled: boolean;
 }
 
-export interface NotificationPreference {
+// ── Subscriber ────────────────────────────────────────────────────────────────
+
+export interface Subscriber {
     id?: string;
     userId?: string;
     email: string | null;
     telegramChatId: string | null;
+    channels: string[];
     enabled: boolean;
-    subscriptions: Subscription[];
+    jobs: Job[];
 }
 
-/** Flat row used by the table — one row per subscription */
-export interface SubscriptionRow {
+// ── Legacy aliases (keep for compatibility during migration) ──────────────────
+/** @deprecated use Subscriber */
+export type NotificationPreference = Subscriber;
+/** @deprecated use Job */
+export type Subscription = Job;
+
+// ── Row types for table display ───────────────────────────────────────────────
+
+export interface SubscriberRow {
     userId: string;
     subscriberName: string;
     subscriberEmail: string;
     email: string | null;
     telegramChatId: string | null;
-    subscriptionId: string;
-    cameraId: string;
-    cameraName: string;
-    zoneNames: string[];
-    alertTypes: string[];
     channels: string[];
     enabled: boolean;
+    jobs: Job[];
 }

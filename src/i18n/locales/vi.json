@@ -146,8 +146,16 @@
   },
   "notificationSettings": {
     "title": "Cài đặt thông báo",
+    "tabJobs": "Jobs",
+    "tabSubscribers": "Subscribers",
+    "newJob": "Tạo job",
+    "editJob": "Sửa job",
+    "jobName": "Tên job",
+    "noJobs": "Chưa có job nào.",
+    "enabled": "Hoạt động",
+    "disabled": "Tắt",
     "allSubscriptions": "Tất cả đăng ký",
-    "newSubscription": "Đăng ký mới",
+    "newSubscription": "Thêm subscriber",
     "subscriptions": "đăng ký",
     "active": "đang hoạt động",
     "searchPlaceholder": "Tìm theo người dùng hoặc camera...",
@@ -166,8 +174,10 @@
     "allAlertTypes": "Tất cả loại",
     "emptyMeansAllAlertTypes": "(trống = tất cả loại)",
     "alertType": {
-      "INTRUSION": "Xâm nhập",
-      "PROXIMITY": "Tiếp cận"
+      "INTRUSION": "Xâm nhập vùng cấm",
+      "NO_HARDHAT": "Không đội mũ bảo hiểm",
+      "NO_SAFETY_VEST": "Không mặc áo bảo hộ",
+      "NO_MASK": "Không đeo khẩu trang"
     },
     "subscriber": "Người đăng ký",
     "selectSubscriber": "-- Chọn người dùng --",

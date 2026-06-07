@@ -146,8 +146,16 @@
   },
   "notificationSettings": {
     "title": "Notification Settings",
+    "tabJobs": "Jobs",
+    "tabSubscribers": "Subscribers",
+    "newJob": "New Job",
+    "editJob": "Edit Job",
+    "jobName": "Job Name",
+    "noJobs": "No jobs yet.",
+    "enabled": "Active",
+    "disabled": "Inactive",
     "allSubscriptions": "All Subscriptions",
-    "newSubscription": "New Subscription",
+    "newSubscription": "Add Subscriber",
     "subscriptions": "subscriptions",
     "active": "active",
     "searchPlaceholder": "Search subscribers or cameras...",
@@ -167,7 +175,9 @@
     "emptyMeansAllAlertTypes": "(empty = all types)",
     "alertType": {
       "INTRUSION": "Intrusion",
-      "PROXIMITY": "Proximity"
+      "NO_HARDHAT": "No Hardhat",
+      "NO_SAFETY_VEST": "No Safety Vest",
+      "NO_MASK": "No Mask"
     },
     "subscriber": "Subscriber",
     "selectSubscriber": "-- Select subscriber --",
