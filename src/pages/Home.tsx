@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, ShieldX, Cctv, Pencil, Trash2, MapPin, X, Wifi, WifiOff, LayoutGrid, Minus } from 'lucide-react';
+import {
+    Search, SlidersHorizontal, Plus, CircleHelp, ShieldCheck, ShieldX, Cctv,
+    Pencil, Trash2, MapPin, X, Wifi, WifiOff, MoreHorizontal, Square, LayoutGrid, Grid3x3, Video, FileUp,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCameraStatusSSE } from '../hooks/useCameraStatusSSE';
 import styles from './Home.module.css';
@@ -7,6 +10,7 @@ import NewCameraDialog from '../components/NewCameraDialog';
 import EditCameraDialog from '../components/EditCameraDialog';
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog';
 import ZoneEditorDialog from '../components/ZoneEditorDialog';
+import ImportCameraDialog from '../components/ImportCameraDialog';
 import IntrusionAlertToast from '../components/IntrusionAlertToast';
 import CameraStreamCell from '../components/CameraStreamCell';
 import { getAllCameras } from '../services/cameraService';
@@ -14,44 +18,47 @@ import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
 import type { CameraRes } from '../types/camera';
 import type { ApiResponse } from '../types/common';
 
-const MIN_GRID = 2;
-const MAX_GRID = 8;
+const GRID_PRESETS = [1, 4, 9] as const;
+type GridPreset = typeof GRID_PRESETS[number];
 
-const loadGridSize = (): number => {
+const loadGridSize = (): GridPreset => {
     const saved = parseInt(localStorage.getItem('cctv-grid-size') ?? '', 10);
-    return saved >= MIN_GRID && saved <= MAX_GRID && saved % 2 === 0 ? saved : 4;
+    return (GRID_PRESETS as readonly number[]).includes(saved) ? (saved as GridPreset) : 4;
 };
 
 const Home: React.FC = () => {
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState<'Cameras' | 'Sequences'>('Cameras');
-    const [controlMode, setControlMode] = useState(false);
     const [isAddCameraOpen, setIsAddCameraOpen] = useState(false);
+    const [isImportOpen, setIsImportOpen] = useState(false);
     const [editingCamera, setEditingCamera] = useState<CameraRes | null>(null);
     const [deletingCamera, setDeletingCamera] = useState<CameraRes | null>(null);
     const [zoneCamera, setZoneCamera] = useState<CameraRes | null>(null);
     const [cameras, setCameras] = useState<CameraRes[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
-    const [gridSize, setGridSize] = useState<number>(loadGridSize);
+    const [gridSize, setGridSize] = useState<GridPreset>(loadGridSize);
     const [selectedCameras, setSelectedCameras] = useState<(CameraRes | null)[]>(
         Array(loadGridSize()).fill(null)
     );
-
-    const changeGridSize = (delta: number) => {
-        setGridSize(prev => {
-            const next = Math.max(MIN_GRID, Math.min(MAX_GRID, prev + delta));
-            if (next === prev) return prev;
-            localStorage.setItem('cctv-grid-size', String(next));
-            setSelectedCameras(cur => {
-                if (next > cur.length) return [...cur, ...Array(next - cur.length).fill(null)];
-                return cur.slice(0, next);
-            });
-            return next;
-        });
-    };
+    const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
     const { alerts, connected, dismissAlert, clearAll } = useIntrusionAlertContext();
+
+    useEffect(() => {
+        if (!openMenuId) return;
+        const handle = () => setOpenMenuId(null);
+        document.addEventListener('click', handle);
+        return () => document.removeEventListener('click', handle);
+    }, [openMenuId]);
+
+    const setGridPreset = (size: GridPreset) => {
+        setGridSize(size);
+        localStorage.setItem('cctv-grid-size', String(size));
+        setSelectedCameras(cur => {
+            if (size > cur.length) return [...cur, ...Array(size - cur.length).fill(null)];
+            return cur.slice(0, size);
+        });
+    };
 
     useCameraStatusSSE(({ cameras: updates }) => {
         setCameras(prev => prev.map(cam => {
@@ -67,7 +74,7 @@ const Home: React.FC = () => {
             const body = res.data as ApiResponse<CameraRes[]>;
             setCameras(body.data ?? []);
         } catch {
-            // ignore errors silently, list stays empty
+            // ignore errors silently
         } finally {
             setLoading(false);
         }
@@ -109,6 +116,9 @@ const Home: React.FC = () => {
     const isCameraActive = (camera: CameraRes) =>
         selectedCameras.some(c => c?.id === camera.id);
 
+    const gridCols = Math.round(Math.sqrt(gridSize));
+    const activeCount = selectedCameras.filter(Boolean).length;
+
     return (
         <div className={styles.container}>
             <IntrusionAlertToast
@@ -117,13 +127,11 @@ const Home: React.FC = () => {
                 onDismiss={dismissAlert}
                 onClearAll={clearAll}
             />
+
             {/* Sidebar */}
             <div className={styles.sidebar}>
                 <div className={styles.tabs}>
-                    <div
-                        className={`${styles.tab} ${activeTab === 'Cameras' ? styles.active : ''}`}
-                        onClick={() => setActiveTab('Cameras')}
-                    >
+                    <div className={`${styles.tab} ${styles.active}`}>
                         {t('home.cameras')}
                     </div>
                     <CircleHelp className={styles.helpIcon} size={18} />
@@ -144,8 +152,12 @@ const Home: React.FC = () => {
                 </div>
 
                 <div className={styles.addAction}>
-                    <button className={styles.addBtn} onClick={() => setIsAddCameraOpen(true)}>
-                        <Plus size={20} />
+                    <button className={styles.addBtnFull} onClick={() => setIsAddCameraOpen(true)}>
+                        <Plus size={18} />
+                    </button>
+                    <button className={styles.importBtn} onClick={() => setIsImportOpen(true)}>
+                        <FileUp size={15} />
+                        {t('home.import')}
                     </button>
                 </div>
 
@@ -170,28 +182,44 @@ const Home: React.FC = () => {
                                 <span className={styles.cameraName}>{camera.name}</span>
                                 <span className={styles.cameraDesc}>{camera.ip}</span>
                             </div>
-                            <div className={styles.cameraActions}>
+                            <span className={`${styles.cameraBadge} ${camera.status === 'OK' ? styles.cameraBadgeLive : styles.cameraBadgeOff}`}>
+                                {camera.status === 'OK' ? t('home.statusLive') : t('home.statusOff')}
+                            </span>
+                            <div className={styles.menuWrapper} onClick={e => e.stopPropagation()}>
                                 <button
-                                    className={styles.actionBtn}
-                                    title="Vẽ vùng cấm"
-                                    onClick={e => { e.stopPropagation(); setZoneCamera(camera); }}
+                                    className={`${styles.menuTriggerBtn} ${openMenuId === camera.id ? styles.menuTriggerBtnActive : ''}`}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        setOpenMenuId(openMenuId === camera.id ? null : camera.id);
+                                    }}
                                 >
-                                    <MapPin size={14} />
+                                    <MoreHorizontal size={16} />
                                 </button>
-                                <button
-                                    className={styles.actionBtn}
-                                    title="Sửa"
-                                    onClick={e => { e.stopPropagation(); setEditingCamera(camera); }}
-                                >
-                                    <Pencil size={14} />
-                                </button>
-                                <button
-                                    className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
-                                    title="Xóa"
-                                    onClick={e => { e.stopPropagation(); setDeletingCamera(camera); }}
-                                >
-                                    <Trash2 size={14} />
-                                </button>
+                                {openMenuId === camera.id && (
+                                    <div className={styles.contextMenu}>
+                                        <button
+                                            className={styles.menuItem}
+                                            onClick={() => { setZoneCamera(camera); setOpenMenuId(null); }}
+                                        >
+                                            <MapPin size={14} />
+                                            {t('home.addZone')}
+                                        </button>
+                                        <button
+                                            className={styles.menuItem}
+                                            onClick={() => { setEditingCamera(camera); setOpenMenuId(null); }}
+                                        >
+                                            <Pencil size={14} />
+                                            {t('home.edit')}
+                                        </button>
+                                        <button
+                                            className={`${styles.menuItem} ${styles.menuItemDelete}`}
+                                            onClick={() => { setDeletingCamera(camera); setOpenMenuId(null); }}
+                                        >
+                                            <Trash2 size={14} />
+                                            {t('home.delete')}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -202,38 +230,25 @@ const Home: React.FC = () => {
             <div className={styles.mainContent}>
                 <div className={styles.topBar}>
                     <div className={styles.topBarLeft}>
-                        <label className={styles.controlModeSwitch}>
-                            <div className={styles.switch}>
-                                <input
-                                    type="checkbox"
-                                    checked={controlMode}
-                                    onChange={(e) => setControlMode(e.target.checked)}
-                                />
-                                <span className={styles.slider}></span>
-                            </div>
-                            {t('home.controlMode')}
-                        </label>
+                        <div className={styles.cameraCount}>
+                            <Video size={15} className={styles.cameraCountIcon} />
+                            <span>{activeCount} / {gridSize}</span>
+                        </div>
                     </div>
                     <div className={styles.topBarRight}>
-                        <div className={styles.gridSizeControl}>
-                            <LayoutGrid size={14} className={styles.gridSizeIcon} />
-                            <button
-                                className={styles.gridSizeBtn}
-                                onClick={() => changeGridSize(-2)}
-                                disabled={gridSize <= MIN_GRID}
-                                title={t('home.gridDecrease')}
-                            >
-                                <Minus size={12} />
-                            </button>
-                            <span className={styles.gridSizeValue}>{gridSize}</span>
-                            <button
-                                className={styles.gridSizeBtn}
-                                onClick={() => changeGridSize(2)}
-                                disabled={gridSize >= MAX_GRID}
-                                title={t('home.gridIncrease')}
-                            >
-                                <Plus size={12} />
-                            </button>
+                        <div className={styles.gridPresets}>
+                            {GRID_PRESETS.map(size => (
+                                <button
+                                    key={size}
+                                    className={`${styles.gridPresetBtn} ${gridSize === size ? styles.gridPresetBtnActive : ''}`}
+                                    onClick={() => setGridPreset(size)}
+                                    title={`${Math.round(Math.sqrt(size))}×${Math.round(Math.sqrt(size))}`}
+                                >
+                                    {size === 1 && <Square size={15} />}
+                                    {size === 4 && <LayoutGrid size={15} />}
+                                    {size === 9 && <Grid3x3 size={15} />}
+                                </button>
+                            ))}
                         </div>
                         <div className={`${styles.statusBadge} ${connected ? styles.statusConnected : styles.statusDisconnected}`}>
                             {connected
@@ -247,8 +262,8 @@ const Home: React.FC = () => {
                 <div
                     className={styles.videoGrid}
                     style={{
-                        gridTemplateColumns: `1fr 1fr`,
-                        gridTemplateRows: `repeat(${gridSize / 2}, 1fr)`,
+                        gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+                        gridTemplateRows: `repeat(${gridCols}, 1fr)`,
                     }}
                 >
                     {selectedCameras.map((camera, idx) => (
@@ -311,6 +326,12 @@ const Home: React.FC = () => {
                     camera={zoneCamera}
                     onClose={() => setZoneCamera(null)}
                     onSaved={fetchCameras}
+                />
+            )}
+            {isImportOpen && (
+                <ImportCameraDialog
+                    onClose={() => setIsImportOpen(false)}
+                    onImported={fetchCameras}
                 />
             )}
         </div>

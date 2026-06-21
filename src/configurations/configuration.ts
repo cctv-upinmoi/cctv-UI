@@ -21,11 +21,12 @@ export const CONFIG = {
 };
 
 export const API = {
-    REGISTRATION: 'users/register',
-    MY_PROFILE:   'users',
-    CAMERAS:      'cameras',
-    NOTIFICATIONS: 'notifications',
-    ANALYTICS:    'analytics',
+    MY_PROFILE:               'users',
+    CAMERAS:                  'cameras',
+    NOTIFICATIONS:            'notifications',
+    NOTIFICATION_PREFERENCES: 'notifications/preferences',
+    JOBS:                     'jobs',
+    ANALYTICS:                'analytics',
 };
 
 export const KEYCLOACK_CONFIG = {

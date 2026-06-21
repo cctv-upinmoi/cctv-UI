@@ -8,7 +8,8 @@
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Sidebar */
+/* ── Sidebar ──────────────────────────────────────────────────────────── */
+
 .sidebar {
     width: 280px;
     min-width: 280px;
@@ -78,17 +79,55 @@
 .searchBoxIcon { color: var(--text-4); width: 14px; height: 14px; margin-right: 4px; }
 .filterIcon    { color: var(--accent); cursor: pointer; }
 
-.addAction { padding: 0 16px 12px; }
-
-.addBtn {
-    color: var(--accent);
-    background: none;
-    border: none;
-    cursor: pointer;
+.addAction {
+    padding: 0 16px 12px;
     display: flex;
     align-items: center;
-    padding: 0;
+    gap: 8px;
 }
+
+/* Blue icon button — "+" */
+.addBtnFull {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background-color: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.15s;
+}
+.addBtnFull:hover { background-color: var(--accent-fg); }
+
+/* Secondary border button — pushed to far right */
+.importBtn {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background-color: var(--bg-surface);
+    color: var(--text-3);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.importBtn:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-2);
+    border-color: var(--accent);
+}
+
+/* ── Camera List ──────────────────────────────────────────────────────── */
 
 .cameraList { flex: 1; overflow-y: auto; }
 
@@ -99,18 +138,19 @@
     border-bottom: 1px solid var(--border);
     cursor: pointer;
     transition: background-color 0.2s;
+    gap: 4px;
 }
 
 .cameraItem:hover { background-color: var(--bg-hover); }
 
-.cameraItem:hover .cameraActions { opacity: 1; }
+.cameraItem:hover .menuTriggerBtn { opacity: 1; }
 
 .statusIcon {
     color: var(--success);
     background-color: var(--success-bg);
     border-radius: 50%;
     padding: 2px;
-    margin-right: 12px;
+    margin-right: 8px;
     flex-shrink: 0;
 }
 
@@ -119,7 +159,7 @@
     background-color: var(--danger-bg);
     border-radius: 50%;
     padding: 2px;
-    margin-right: 12px;
+    margin-right: 8px;
     flex-shrink: 0;
 }
 
@@ -136,9 +176,38 @@
 
 .cameraDesc { font-size: 11px; color: var(--text-4); margin-top: 2px; }
 
-.cameraActions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+/* Camera status badge (LIVE / OFF) */
 
-.actionBtn {
+.cameraBadge {
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cameraBadgeLive {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
+}
+
+.cameraBadgeOff {
+    background-color: var(--bg-input);
+    color: var(--text-4);
+    border: 1px solid var(--border-strong);
+}
+
+/* Context menu ("...") */
+
+.menuWrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.menuTriggerBtn {
     background: none;
     border: none;
     cursor: pointer;
@@ -147,16 +216,52 @@
     color: var(--text-4);
     display: flex;
     align-items: center;
+    opacity: 0;
+    transition: opacity 0.15s, background-color 0.15s;
 }
 
-.actionBtn:hover { background-color: var(--accent-bg); color: var(--accent-fg); }
+.menuTriggerBtn:hover { background-color: var(--bg-active); color: var(--text-2); }
 
-.actionBtnDelete:hover { background-color: var(--danger-bg); color: var(--danger); }
+.menuTriggerBtnActive { opacity: 1 !important; }
+
+.contextMenu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px var(--shadow);
+    z-index: 100;
+    min-width: 140px;
+    overflow: hidden;
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-2);
+    text-align: left;
+    transition: background-color 0.15s;
+}
+
+.menuItem:hover { background-color: var(--bg-hover); }
+
+.menuItemDelete { color: var(--danger); }
+.menuItemDelete:hover { background-color: var(--danger-bg); color: var(--danger); }
 
 .loadingText { padding: 16px; text-align: center; font-size: 13px; color: var(--text-4); }
 .emptyText   { padding: 16px; text-align: center; font-size: 13px; color: var(--text-5); }
 
-/* Main Content */
+/* ── Main Content ─────────────────────────────────────────────────────── */
+
 .mainContent {
     flex: 1;
     display: flex;
@@ -176,46 +281,58 @@
 .topBarLeft  { display: flex; align-items: center; }
 .topBarRight { display: flex; align-items: center; gap: 8px; }
 
-.gridSizeControl {
+/* Camera count (active / total) */
+
+.cameraCount {
     display: flex;
     align-items: center;
-    gap: 4px;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 3px 8px;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-3);
 }
 
-.gridSizeIcon { color: var(--text-4); }
+.cameraCountIcon { color: var(--text-4); flex-shrink: 0; }
 
-.gridSizeBtn {
+/* Grid preset buttons (1×1 / 2×2 / 3×3) */
+
+.gridPresets {
+    display: flex;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: var(--bg-surface);
+}
+
+.gridPresetBtn {
     background: none;
     border: none;
+    border-right: 1px solid var(--border-strong);
     cursor: pointer;
-    padding: 2px 4px;
-    color: var(--accent);
+    padding: 6px 10px;
+    color: var(--text-4);
     display: flex;
     align-items: center;
-    border-radius: 3px;
-    transition: background-color 0.15s;
+    justify-content: center;
+    transition: background-color 0.15s, color 0.15s;
 }
 
-.gridSizeBtn:hover:not(:disabled) { background-color: var(--accent-bg); }
-.gridSizeBtn:disabled { color: var(--text-5); cursor: not-allowed; }
+.gridPresetBtn:last-child { border-right: none; }
 
-.gridSizeValue {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-2);
-    min-width: 14px;
-    text-align: center;
+.gridPresetBtn:hover { background-color: var(--bg-hover); color: var(--text-2); }
+
+.gridPresetBtnActive {
+    background-color: var(--accent-bg);
+    color: var(--accent-fg);
 }
+
+/* Connection status badge */
 
 .statusBadge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 8px;
+    padding: 3px 10px;
     border-radius: 999px;
     font-size: 11px;
     font-weight: 600;
@@ -233,76 +350,24 @@
     border: 1px solid var(--danger-border);
 }
 
-.profileBtn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: transparent;
-    color: var(--text-4);
-    border: 1px solid var(--border);
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
+/* ── Video Grid ───────────────────────────────────────────────────────── */
 
-.profileBtn:hover { background-color: var(--bg-hover); color: var(--accent); border-color: var(--border-strong); }
-
-.controlModeSwitch {
-    display: flex;
-    align-items: center;
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 4px 12px;
-    font-size: 13px;
-    color: var(--text-4);
-    cursor: pointer;
-    gap: 8px;
-}
-
-/* Toggle Switch */
-.switch { position: relative; display: inline-block; width: 32px; height: 16px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: var(--border-strong);
-    transition: .4s;
-    border-radius: 16px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 12px;
-    width: 12px;
-    left: 2px;
-    bottom: 2px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-input:checked + .slider { background-color: var(--accent); }
-input:focus  + .slider { box-shadow: 0 0 1px var(--accent); }
-input:checked + .slider:before { transform: translateX(16px); }
-
-/* Video Grid */
 .videoGrid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 16px;
+    gap: 12px;
     flex: 1;
     min-height: 0;
 }
 
-.gridCell { display: flex; flex-direction: column; min-height: 0; }
+.gridCell {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
 
 .cameraItemActive {
     background-color: var(--bg-active) !important;
@@ -312,10 +377,11 @@ input:checked + .slider:before { transform: translateX(16px); }
 .streamLabel {
     font-size: 12px;
     color: var(--text-4);
-    margin-bottom: 6px;
+    padding: 10px 12px 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
 }
 
 .streamCloseBtn {
@@ -342,13 +408,12 @@ input:checked + .slider:before { transform: translateX(16px); }
 
 .placeholder {
     flex: 1;
-    background-color: var(--bg-input);
-    border-radius: 4px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: var(--text-4);
+    padding-bottom: 10px;
 }
 
 .placeholderIcon { margin-bottom: 12px; color: var(--text-4); }

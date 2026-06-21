@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Cctv, Bell, User, UserPlus, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Map, Sun, Moon, Languages, FileUp } from 'lucide-react';
+import { Cctv, Bell, User, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Map, Sun, Moon, Languages, BellDot, ShieldCheck } from 'lucide-react';
 import styles from './Layout.module.css';
 import { logOut } from '../services/authService';
 import keycloak from '../configurations/keycloak';
+import { KEYCLOACK_CONFIG } from '../configurations/configuration';
 import { useTheme } from '../contexts/ThemeContext';
 import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
 import { useTranslation } from 'react-i18next';
@@ -13,8 +14,13 @@ const Layout: React.FC = () => {
     const { theme, toggle } = useTheme();
     const { unreadCount } = useIntrusionAlertContext();
     const { t, i18n } = useTranslation();
-    const parsed = keycloak.tokenParsed as { preferred_username?: string } | undefined;
-    const username = parsed?.preferred_username ?? 'User';
+    const parsed = keycloak.tokenParsed as { preferred_username?: string; realm_access?: { roles?: string[] } } | undefined;
+    // const username = parsed?.preferred_username ?? 'User';
+    const roles = parsed?.realm_access?.roles ?? [];
+    const isAdmin = roles.includes('ADMIN');
+    const canManageNotifications = isAdmin || roles.includes('CONFIGURATOR');
+
+    const kcAdminUrl = `${KEYCLOACK_CONFIG.url.replace(/\/$/, '')}/admin/${KEYCLOACK_CONFIG.realm}/console`;
 
     const isVi = i18n.language === 'vi';
 
@@ -30,8 +36,6 @@ const Layout: React.FC = () => {
         { to: '/map',           icon: <Map size={20} />,            label: t('nav.map') },
         { to: '/notifications', icon: <Bell size={20} />,           label: t('nav.alerts') },
         { to: '/profile',       icon: <User size={20} />,           label: t('nav.profile') },
-        { to: '/add-user',      icon: <UserPlus size={20} />,       label: t('nav.addUser') },
-        { to: '/import-cameras', icon: <FileUp size={20} />,        label: t('nav.importCameras') },
     ];
 
     return (
@@ -72,6 +76,30 @@ const Layout: React.FC = () => {
                             {!collapsed && <span className={styles.navLabel}>{item.label}</span>}
                         </NavLink>
                     ))}
+                    {canManageNotifications && (
+                        <NavLink
+                            to="/notification-settings"
+                            title={collapsed ? t('nav.notificationSettings') : undefined}
+                            className={({ isActive }) =>
+                                `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
+                            }
+                        >
+                            <span className={styles.navIcon}><BellDot size={20} /></span>
+                            {!collapsed && <span className={styles.navLabel}>{t('nav.notificationSettings')}</span>}
+                        </NavLink>
+                    )}
+                    {isAdmin && (
+                        <a
+                            href={kcAdminUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={collapsed ? t('nav.userManagement') : undefined}
+                            className={styles.navItem}
+                        >
+                            <span className={styles.navIcon}><ShieldCheck size={20} /></span>
+                            {!collapsed && <span className={styles.navLabel}>{t('nav.userManagement')}</span>}
+                        </a>
+                    )}
                 </div>
 
                 <div className={styles.navFooter}>
@@ -91,10 +119,10 @@ const Layout: React.FC = () => {
                         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                         {!collapsed && <span>{t(theme === 'dark' ? 'nav.lightMode' : 'nav.darkMode')}</span>}
                     </button>
-                    <div className={styles.userRow} title={collapsed ? username : undefined}>
-                        <div className={styles.avatar}>{username[0].toUpperCase()}</div>
-                        {!collapsed && <span className={styles.username}>{username}</span>}
-                    </div>
+                    {/*<div className={styles.userRow} title={collapsed ? username : undefined}>*/}
+                    {/*    <div className={styles.avatar}>{username[0].toUpperCase()}</div>*/}
+                    {/*    {!collapsed && <span className={styles.username}>{username}</span>}*/}
+                    {/*</div>*/}
                     <button
                         className={styles.logoutBtn}
                         onClick={logOut}

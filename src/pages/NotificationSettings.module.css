@@ -1,0 +1,1258 @@
+/* ── Page shell ──────────────────────────────────────────────────────────── */
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-base);
+    color: var(--text-2);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow: hidden;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-base);
+    color: var(--text-2);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow: hidden;
+}
+
+.loadingWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: var(--text-4);
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.headerIcon { color: var(--accent); }
+
+.title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-1);
+}
+
+.tabPill {
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-3);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.newBtn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.newBtn:hover { opacity: 0.88; }
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-surface);
+    flex-shrink: 0;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.statsPills { display: flex; gap: 10px; }
+
+.statPill {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    font-size: 0.82rem;
+    color: var(--text-3);
+}
+.statPill strong { color: var(--text-1); }
+
+.toolbarRight { display: flex; align-items: center; gap: 10px; }
+
+.searchWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.searchIcon {
+    position: absolute;
+    left: 10px;
+    color: var(--text-5);
+    pointer-events: none;
+}
+.searchInput {
+    padding: 8px 12px 8px 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.83rem;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.15s;
+}
+.searchInput:focus { border-color: var(--accent); }
+.searchInput::placeholder { color: var(--text-5); }
+
+.filterWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.filterSelect {
+    appearance: none;
+    padding: 8px 34px 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.83rem;
+    cursor: pointer;
+    outline: none;
+}
+.filterChevron {
+    position: absolute;
+    right: 10px;
+    pointer-events: none;
+    color: var(--text-5);
+}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.tableWrap {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+}
+
+.table thead tr {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.table thead th {
+    padding: 11px 20px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-4);
+    white-space: nowrap;
+}
+
+.tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+}
+.tr:hover { background: var(--bg-surface-2, var(--bg-input)); }
+
+.table td {
+    padding: 14px 20px;
+    vertical-align: middle;
+}
+
+/* empty state */
+.emptyCell {
+    text-align: center;
+    padding: 60px 20px !important;
+    color: var(--text-4);
+}
+.emptyIcon {
+    margin: 0 auto 12px;
+    display: block;
+    opacity: 0.35;
+}
+
+/* ── Subscriber cell ─────────────────────────────────────────────────────── */
+.subscriber { display: flex; align-items: center; gap: 11px; }
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.subName { font-weight: 500; color: var(--text-1); font-size: 0.85rem; }
+.subEmail { font-size: 0.75rem; color: var(--text-4); margin-top: 1px; }
+
+/* ── Camera cell ─────────────────────────────────────────────────────────── */
+.cameraCell { display: flex; align-items: center; gap: 9px; }
+
+.dotOnline, .dotOffline {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.dotOnline  { background: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,.2); }
+.dotOffline { background: #ef4444; box-shadow: 0 0 0 2px rgba(239,68,68,.2); }
+
+.cameraName { font-weight: 500; color: var(--text-1); font-size: 0.85rem; }
+.cameraAddr { font-size: 0.75rem; color: var(--text-4); margin-top: 1px; }
+
+/* ── Zone badges ─────────────────────────────────────────────────────────── */
+.zoneBadges { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.badgeNeutral {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-3);
+    font-size: 0.75rem;
+}
+
+.badgeZone {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: 0.75rem;
+}
+
+.badgeAlert {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
+    font-size: 0.75rem;
+}
+
+/* ── Channel badges ──────────────────────────────────────────────────────── */
+.channelBadges { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.badgeEmail, .badgeTelegram {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 11px;
+    border-radius: 14px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.badgeEmail {
+    background: rgba(59,130,246,.12);
+    color: #3b82f6;
+    border: 1px solid rgba(59,130,246,.2);
+}
+.badgeTelegram {
+    background: rgba(139,92,246,.12);
+    color: #8b5cf6;
+    border: 1px solid rgba(139,92,246,.2);
+}
+
+/* ── Toggle ──────────────────────────────────────────────────────────────── */
+.toggle {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    padding: 0;
+    flex-shrink: 0;
+}
+.toggleOn  { background: var(--accent, #3b82f6); }
+.toggleOff { background: var(--text-5, #6b7280); }
+.toggle:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.toggleKnob {
+    position: absolute;
+    top: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.toggleOn  .toggleKnob { left: 21px; }
+.toggleOff .toggleKnob { left: 3px; }
+
+/* ── Action buttons ──────────────────────────────────────────────────────── */
+.actions { display: flex; gap: 6px; }
+
+.actionBtn, .actionBtnDanger {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-3);
+}
+.actionBtn:hover { background: var(--bg-input); color: var(--text-1); }
+.actionBtnDanger:hover { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); color: #ef4444; }
+
+/* ── Overlay + Drawer ────────────────────────────────────────────────────── */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 200;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.drawer {
+    width: 420px;
+    max-width: 100vw;
+    height: 100%;
+    background: var(--bg-surface);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 24px rgba(0,0,0,.2);
+    animation: slideIn 0.22s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+}
+
+.drawerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 22px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.drawerHeaderLeft { display: flex; align-items: center; gap: 12px; }
+
+.drawerIconWrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(99,102,241,.15);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.drawerTitle { font-weight: 600; font-size: 0.95rem; color: var(--text-1); }
+.drawerSub   { font-size: 0.76rem; color: var(--text-4); margin-top: 2px; }
+
+.drawerClose {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    transition: all 0.15s;
+}
+.drawerClose:hover { background: var(--bg-input); color: var(--text-1); }
+
+.drawerBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.drawerFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 22px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+/* ── Form groups ─────────────────────────────────────────────────────────── */
+.fGroup { display: flex; flex-direction: column; gap: 8px; }
+
+.fLabel {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.optTag {
+    margin-left: 8px;
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--text-5);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.hint { font-size: 0.8rem; color: var(--text-5); margin: 0; }
+
+.selectWrap { position: relative; display: flex; align-items: center; }
+.fSelect {
+    width: 100%;
+    appearance: none;
+    padding: 9px 34px 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+.fSelect:focus { border-color: var(--accent); }
+.selectChevron {
+    position: absolute;
+    right: 10px;
+    pointer-events: none;
+    color: var(--text-5);
+}
+
+.fInput {
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+}
+.fInput:focus { border-color: var(--accent); }
+.fInput::placeholder { color: var(--text-5); }
+
+.fError {
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: rgba(239,68,68,.1);
+    border: 1px solid rgba(239,68,68,.25);
+    color: #ef4444;
+    font-size: 0.8rem;
+}
+
+/* ── Zone chips ──────────────────────────────────────────────────────────── */
+.zoneGrid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.zoneChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-2);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+}
+.zoneChip input { display: none; }
+.zoneChip:hover { border-color: var(--accent); color: var(--text-1); }
+
+.zoneChipActive {
+    background: rgba(99,102,241,.12);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 500;
+}
+
+/* ── Channel cards ───────────────────────────────────────────────────────── */
+.channelCards { display: flex; flex-direction: column; gap: 8px; }
+
+.channelCard {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.channelCard:hover { border-color: var(--accent); }
+
+.channelCardActive {
+    border-color: var(--accent);
+    background: rgba(99,102,241,.08);
+}
+
+.chCardIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: var(--bg-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.chCardInfo { flex: 1; min-width: 0; }
+.chCardName { font-size: 0.86rem; font-weight: 500; color: var(--text-1); }
+.chCardSub  { font-size: 0.75rem; color: var(--text-4); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.chRadio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+.chRadioActive {
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: inset 0 0 0 3px var(--bg-input);
+}
+
+/* ── Footer buttons ──────────────────────────────────────────────────────── */
+.cancelBtn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-2);
+    font-size: 0.84rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.cancelBtn:hover { background: var(--bg-input); }
+
+.createBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.createBtn:hover:not(:disabled) { opacity: 0.88; }
+.createBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.deleteBtn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.deleteBtn:hover { opacity: 0.88; }
+
+/* ── New component classes ───────────────────────────────────────────────── */
+
+.headerRight { display: flex; align-items: center; gap: 10px; }
+
+.searchBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.searchBox .searchIcon {
+    position: absolute;
+    left: 10px;
+    color: var(--text-5);
+    pointer-events: none;
+}
+.searchInput {
+    padding: 8px 12px 8px 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.83rem;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.15s;
+}
+.searchInput:focus { border-color: var(--accent); }
+.searchInput::placeholder { color: var(--text-5); }
+
+/* ── Tabs ──────────────────────────────────────────────────────────────────── */
+.tabBar {
+    display: flex;
+    gap: 4px;
+    padding: 12px 24px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-surface);
+    flex-shrink: 0;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--text-4);
+    font-size: 0.84rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+    border-radius: 6px 6px 0 0;
+}
+.tab:hover { color: var(--text-1); background: var(--bg-input); }
+.tabActive {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+}
+
+.tabCount {
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    font-size: 0.72rem;
+    color: var(--text-3);
+}
+.tabActive .tabCount {
+    background: rgba(99,102,241,.12);
+    border-color: rgba(99,102,241,.3);
+    color: var(--accent);
+}
+
+.tabContent {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Table actions bar ─────────────────────────────────────────────────────── */
+.tableActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-surface);
+    flex-shrink: 0;
+}
+
+.addBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.addBtn:hover { opacity: 0.88; }
+
+.empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-4);
+    font-size: 0.9rem;
+    padding: 60px 20px;
+}
+
+/* ── Table ─────────────────────────────────────────────────────────────────── */
+.table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.table thead tr { background: var(--bg-surface); border-bottom: 1px solid var(--border); }
+.table thead th {
+    padding: 11px 20px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-4);
+    white-space: nowrap;
+}
+.table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+.table tbody tr:hover { background: var(--bg-input); }
+.table td { padding: 14px 20px; vertical-align: middle; }
+
+/* ── Camera chip ────────────────────────────────────────────────────────────── */
+.camChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: 0.8rem;
+}
+
+.dimText { color: var(--text-5); font-size: 0.8rem; font-style: italic; }
+
+/* ── Status badges ──────────────────────────────────────────────────────────── */
+.badgeOn {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(34,197,94,.12);
+    border: 1px solid rgba(34,197,94,.25);
+    color: #22c55e;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+.badgeOff {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-4);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    font-size: 0.75rem;
+}
+
+/* ── Action icon buttons ────────────────────────────────────────────────────── */
+.iconBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-3);
+}
+.iconBtn:hover { background: var(--bg-input); color: var(--text-1); }
+.iconBtnDanger:hover { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); color: #ef4444; }
+
+/* ── Subscriber cell ────────────────────────────────────────────────────────── */
+.subMeta {
+    display: flex;
+    gap: 10px;
+    margin-top: 3px;
+    color: var(--text-4);
+    font-size: 0.75rem;
+}
+.subMeta span { display: inline-flex; align-items: center; gap: 3px; }
+
+.jobCount {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(99,102,241,.1);
+    border: 1px solid rgba(99,102,241,.2);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+/* ── Drawer (overlay + panel) ───────────────────────────────────────────────── */
+.drawerOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 200;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.drawerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-1);
+    flex-shrink: 0;
+}
+
+.closeBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-3);
+    transition: all 0.15s;
+}
+.closeBtn:hover { background: var(--bg-input); color: var(--text-1); }
+
+/* ── Form controls ──────────────────────────────────────────────────────────── */
+.label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    margin-top: 14px;
+}
+.label:first-child { margin-top: 0; }
+
+.input {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+.input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--text-5); }
+
+.select {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    transition: border-color 0.15s;
+}
+.select:focus { border-color: var(--accent); }
+
+.chipGroup { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-2);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+}
+.chip:hover { border-color: var(--accent); color: var(--text-1); }
+.chipActive {
+    background: rgba(99,102,241,.12);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.checkRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-2);
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.error {
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: rgba(239,68,68,.1);
+    border: 1px solid rgba(239,68,68,.25);
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+/* ── Job list in subscriber drawer ─────────────────────────────────────────── */
+.jobList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px;
+    background: var(--bg-input);
+}
+
+.jobItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.12s;
+}
+.jobItem:hover { background: var(--bg-surface); border-color: var(--border); }
+.jobItemSelected {
+    background: rgba(99,102,241,.08);
+    border-color: rgba(99,102,241,.3);
+}
+
+.jobItemCheck {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    color: var(--accent);
+}
+.jobItemSelected .jobItemCheck {
+    border-color: var(--accent);
+    background: rgba(99,102,241,.15);
+}
+
+.jobItemName { font-size: 0.85rem; font-weight: 500; color: var(--text-1); }
+.jobItemMeta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-4);
+    margin-top: 2px;
+}
+
+/* ── Job multi-select dropdown ──────────────────────────────────────────────── */
+.selectedJobTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.selectedJobTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(99,102,241,.12);
+    border: 1px solid rgba(99,102,241,.3);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.tagRemove {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--accent);
+    padding: 0;
+    opacity: 0.7;
+    line-height: 1;
+}
+.tagRemove:hover { opacity: 1; }
+
+.jobDropdown {
+    position: relative;
+}
+
+.jobDropTrigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-2);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    text-align: left;
+}
+.jobDropTrigger:hover { border-color: var(--accent); }
+.jobDropTriggerOpen  { border-color: var(--accent); }
+
+.jobDropLabel { flex: 1; color: var(--text-2); }
+
+.jobDropChevron {
+    color: var(--text-5);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+.jobDropChevronUp { transform: rotate(180deg); }
+
+.jobDropPanel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    z-index: 50;
+    overflow: hidden;
+}
+
+.jobDropSearch {
+    position: relative;
+    padding: 10px 10px 6px;
+    border-bottom: 1px solid var(--border);
+}
+.jobDropSearchIcon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-30%);
+    color: var(--text-5);
+    pointer-events: none;
+}
+.jobDropSearchInput {
+    width: 100%;
+    padding: 7px 10px 7px 30px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-1);
+    font-size: 0.82rem;
+    outline: none;
+    box-sizing: border-box;
+}
+.jobDropSearchInput:focus { border-color: var(--accent); }
+
+.jobDropOptions {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.jobDropOption {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+.jobDropOption:hover { background: var(--bg-input); }
+.jobDropOptionSelected { background: rgba(99,102,241,.06); }
+
+.jobDropCheck {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--accent);
+    transition: all 0.15s;
+}
+.jobDropCheckActive {
+    border-color: var(--accent);
+    background: rgba(99,102,241,.15);
+}
+
+.jobDropInfo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.jobDropName {
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--text-1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.jobDropMeta {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.73rem;
+    color: var(--text-4);
+}
+
+.jobDropEmpty {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-5);
+    font-size: 0.82rem;
+}
+
+.jobDropFooter {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+}
+.jobDropDone {
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.jobDropDone:hover { opacity: 0.88; }
+
+/* ── Save button ────────────────────────────────────────────────────────────── */
+.saveBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.saveBtn:hover:not(:disabled) { opacity: 0.88; }
+.saveBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Confirm dialog ──────────────────────────────────────────────────────── */
+.confirmDialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 380px;
+    max-width: 90vw;
+    background: var(--bg-surface);
+    border-radius: 12px;
+    padding: 28px 24px 22px;
+    box-shadow: 0 8px 40px rgba(0,0,0,.3);
+}
+
+.confirmTitle {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-1);
+}
+.confirmBody {
+    font-size: 0.85rem;
+    color: var(--text-3);
+    margin: 0 0 22px;
+    line-height: 1.5;
+}
+.confirmActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}

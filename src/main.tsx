@@ -6,6 +6,7 @@ import App from "./App.tsx";
 import keycloak from "./configurations/keycloak";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { IntrusionAlertProvider } from "./contexts/IntrusionAlertContext";
+import { UserProvider } from "./contexts/UserContext";
 
 const Main = () => {
   const [keycloakInitialized, setKeycloakInitialized] = useState(false);
@@ -17,7 +18,7 @@ const Main = () => {
 
     keycloak
       .init({
-        onLoad: "check-sso",
+        onLoad: 'check-sso',
         checkLoginIframe: false,
       })
       .then((authenticated) => {
@@ -70,7 +71,7 @@ const Main = () => {
     );
   }
 
-  return <ThemeProvider><IntrusionAlertProvider><App /></IntrusionAlertProvider></ThemeProvider>;
+  return <ThemeProvider><UserProvider><IntrusionAlertProvider><App /></IntrusionAlertProvider></UserProvider></ThemeProvider>;
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
