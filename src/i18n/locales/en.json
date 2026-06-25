@@ -15,6 +15,11 @@
     "vietnamese": "Tiếng Việt",
     "english": "English"
   },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "message": "An error occurred while displaying this page. Please try again.",
+    "retry": "Retry"
+  },
   "common": {
     "loading": "Loading...",
     "noData": "No data",

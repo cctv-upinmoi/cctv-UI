@@ -15,6 +15,11 @@
     "vietnamese": "Tiếng Việt",
     "english": "English"
   },
+  "errorBoundary": {
+    "title": "Đã xảy ra lỗi",
+    "message": "Có lỗi xảy ra khi hiển thị trang này. Vui lòng thử lại.",
+    "retry": "Thử lại"
+  },
   "common": {
     "loading": "Đang tải...",
     "noData": "Chưa có dữ liệu",

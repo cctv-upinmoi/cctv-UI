@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, Search, Camera, MapPin, Clock, ChevronRight, X, CheckCheck, ChevronLeft, ShieldX, HardHat, Shirt, Smile } from 'lucide-react';
+import { Bell, Search, Camera, MapPin, Clock, ChevronRight, X, CheckCheck, ChevronLeft, ShieldAlert, ShieldX, HardHat, Shirt, Smile } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import styles from './Notifications.module.css';
 import * as notificationService from '../services/notificationService';
