@@ -3,22 +3,18 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { Cctv, Bell, User, LogOut, ChevronLeft, ChevronRight, LayoutDashboard, Map, Sun, Moon, Languages, BellDot, ShieldCheck } from 'lucide-react';
 import styles from './Layout.module.css';
 import { logOut } from '../services/authService';
-import keycloak from '../configurations/keycloak';
 import { KEYCLOACK_CONFIG } from '../configurations/configuration';
 import { useTheme } from '../contexts/ThemeContext';
 import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../hooks/useAuth';
 
 const Layout: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
     const { theme, toggle } = useTheme();
     const { unreadCount } = useIntrusionAlertContext();
     const { t, i18n } = useTranslation();
-    const parsed = keycloak.tokenParsed as { preferred_username?: string; realm_access?: { roles?: string[] } } | undefined;
-    // const username = parsed?.preferred_username ?? 'User';
-    const roles = parsed?.realm_access?.roles ?? [];
-    const isAdmin = roles.includes('ADMIN');
-    const canManageNotifications = isAdmin || roles.includes('CONFIGURATOR');
+    const { canManageOwnSubscription, canOpenUserManagement } = useAuth();
 
     const kcAdminUrl = `${KEYCLOACK_CONFIG.url.replace(/\/$/, '')}/admin/${KEYCLOACK_CONFIG.realm}/console`;
 
@@ -76,7 +72,7 @@ const Layout: React.FC = () => {
                             {!collapsed && <span className={styles.navLabel}>{item.label}</span>}
                         </NavLink>
                     ))}
-                    {canManageNotifications && (
+                    {canManageOwnSubscription && (
                         <NavLink
                             to="/notification-settings"
                             title={collapsed ? t('nav.notificationSettings') : undefined}
@@ -88,7 +84,7 @@ const Layout: React.FC = () => {
                             {!collapsed && <span className={styles.navLabel}>{t('nav.notificationSettings')}</span>}
                         </NavLink>
                     )}
-                    {isAdmin && (
+                    {canOpenUserManagement && (
                         <a
                             href={kcAdminUrl}
                             target="_blank"

@@ -7,7 +7,9 @@ import Dashboard from "../pages/Dashboard";
 import MapView from "../pages/MapView";
 import NotificationSettings from "../pages/NotificationSettings";
 import ProtectedRoute from "./ProtectedRoute";
+import RoleProtectedRoute from "./RoleProtectedRoute";
 import Layout from "../layouts/Layout";
+import { ROLES } from "../auth/roles";
 
 const AppRoutes = () => {
     return (
@@ -21,7 +23,9 @@ const AppRoutes = () => {
                         <Route path="/map" element={<MapView />} />
                         <Route path="/notifications" element={<Notifications />} />
                         <Route path="/profile" element={<Profile />} />
-                        <Route path="/notification-settings" element={<NotificationSettings />} />
+                        <Route element={<RoleProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.CONFIGURATOR]} />}>
+                            <Route path="/notification-settings" element={<NotificationSettings />} />
+                        </Route>
                     </Route>
                 </Route>
             </Routes>

@@ -15,6 +15,7 @@ import {
 import { getAllJobs, createJob, updateJob, deleteJob } from '../services/jobService';
 import { getAllCameras } from '../services/cameraService';
 import { kcGetUsers } from '../services/keycloakAdminService';
+import { useAuth } from '../hooks/useAuth';
 import type { Job, Subscriber } from '../types/notificationPreference';
 import type { CameraRes } from '../types/camera';
 import type { KcUser } from '../types/keycloakAdmin';
@@ -25,12 +26,6 @@ const ALL_ALERT_TYPES = ['INTRUSION', 'NO_HARDHAT', 'NO_SAFETY_VEST', 'NO_MASK']
 const ALL_CHANNELS    = ['EMAIL', 'TELEGRAM'] as const;
 
 type ActiveTab = 'jobs' | 'subscribers';
-
-const isAdminUser = (): boolean => {
-    const roles = (keycloak.tokenParsed as { realm_access?: { roles?: string[] } })
-        ?.realm_access?.roles ?? [];
-    return roles.includes('ADMIN') || roles.includes('CONFIGURATOR');
-};
 
 const kcDisplayName = (u: KcUser): string => {
     const full = `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim();
@@ -51,7 +46,7 @@ const defaultSubscriberForm = (): SubscriberRequest => ({
 
 const NotificationSettings: React.FC = () => {
     const { t } = useTranslation();
-    const admin = isAdminUser();
+    const { canManageAllSubscriptions: canManageAll } = useAuth();
 
     const currentUserId   = keycloak.subject ?? '';
     const currentUserName = (keycloak.tokenParsed as { name?: string })?.name
@@ -94,7 +89,7 @@ const NotificationSettings: React.FC = () => {
             const camData = (camRes.data as { code: number; data: CameraRes[] })?.data;
             if (Array.isArray(camData)) setCameras(camData);
 
-            if (admin) {
+            if (canManageAll) {
                 const [subsRes, users] = await Promise.all([
                     getAllPreferences(),
                     kcGetUsers().catch(() => [] as KcUser[]),
@@ -109,7 +104,7 @@ const NotificationSettings: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    }, [admin]);
+    }, [canManageAll]);
 
     useEffect(() => { load(); }, [load]);
 
@@ -159,8 +154,8 @@ const NotificationSettings: React.FC = () => {
     const openCreateSub = () => {
         setEditingSub(null);
         setSubForm({ ...defaultSubscriberForm(),
-            userId: admin ? '' : currentUserId,
-            email: admin ? null : currentUserEmail,
+            userId: canManageAll ? '' : currentUserId,
+            email: canManageAll ? null : currentUserEmail,
         });
         setSubError(null);
         setSubDrawer(true);
@@ -184,7 +179,7 @@ const NotificationSettings: React.FC = () => {
         if (!subForm.channels.length) { setSubError(t('notificationSettings.errorSelectChannel')); return; }
         setSavingSub(true);
         try {
-            if (admin) {
+            if (canManageAll) {
                 const userId = (editingSub?.userId ?? subForm.userId) ?? '';
                 const res = await adminUpsertPreference(userId, subForm);
                 const updated = res.data.data;
@@ -203,7 +198,7 @@ const NotificationSettings: React.FC = () => {
 
     const handleDeleteSub = async (sub: Subscriber) => {
         if (!window.confirm(`Xóa subscriber này?`)) return;
-        if (admin && sub.userId) {
+        if (canManageAll && sub.userId) {
             await adminDeletePreference(sub.userId);
             setSubscribers(prev => prev.filter(s => s.userId !== sub.userId));
         } else {
@@ -324,11 +319,13 @@ const NotificationSettings: React.FC = () => {
             {/* ── SUBSCRIBERS TAB ── */}
             {activeTab === 'subscribers' && (
                 <div className={styles.tabContent}>
-                    <div className={styles.tableActions}>
-                        <button className={styles.addBtn} onClick={openCreateSub}>
-                            <Plus size={14} /> {t('notificationSettings.newSubscription')}
-                        </button>
-                    </div>
+                    {(canManageAll || subscribers.length === 0) && (
+                        <div className={styles.tableActions}>
+                            <button className={styles.addBtn} onClick={openCreateSub}>
+                                <Plus size={14} /> {t('notificationSettings.newSubscription')}
+                            </button>
+                        </div>
+                    )}
                     {loading ? <div className={styles.empty}>{t('common.loading')}</div>
                     : filteredSubs.length === 0 ? <div className={styles.empty}>{t('notificationSettings.noSubscriptions')}</div>
                     : (
@@ -475,7 +472,7 @@ const NotificationSettings: React.FC = () => {
                         <div className={styles.drawerBody}>
 
                             {/* User (admin only) */}
-                            {admin && (
+                            {canManageAll && (
                                 <>
                                     <label className={styles.label}>{t('notificationSettings.subscriber')}</label>
                                     <select className={styles.select}

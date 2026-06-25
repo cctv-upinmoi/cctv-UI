@@ -15,6 +15,7 @@ import IntrusionAlertToast from '../components/IntrusionAlertToast';
 import CameraStreamCell from '../components/CameraStreamCell';
 import { getAllCameras } from '../services/cameraService';
 import { useIntrusionAlertContext } from '../contexts/IntrusionAlertContext';
+import { useAuth } from '../hooks/useAuth';
 import type { CameraRes } from '../types/camera';
 import type { ApiResponse } from '../types/common';
 
@@ -43,6 +44,9 @@ const Home: React.FC = () => {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
     const { alerts, connected, dismissAlert, clearAll } = useIntrusionAlertContext();
+    const { canCreateCamera, canImportCamera, canEditCamera, canDeleteCamera, canEditZone } = useAuth();
+    const showAddActions = canCreateCamera || canImportCamera;
+    const showRowMenu = canEditCamera || canDeleteCamera || canEditZone;
 
     useEffect(() => {
         if (!openMenuId) return;
@@ -151,15 +155,21 @@ const Home: React.FC = () => {
                     <SlidersHorizontal className={styles.filterIcon} size={18} />
                 </div>
 
-                <div className={styles.addAction}>
-                    <button className={styles.addBtnFull} onClick={() => setIsAddCameraOpen(true)}>
-                        <Plus size={18} />
-                    </button>
-                    <button className={styles.importBtn} onClick={() => setIsImportOpen(true)}>
-                        <FileUp size={15} />
-                        {t('home.import')}
-                    </button>
-                </div>
+                {showAddActions && (
+                    <div className={styles.addAction}>
+                        {canCreateCamera && (
+                            <button className={styles.addBtnFull} onClick={() => setIsAddCameraOpen(true)}>
+                                <Plus size={18} />
+                            </button>
+                        )}
+                        {canImportCamera && (
+                            <button className={styles.importBtn} onClick={() => setIsImportOpen(true)}>
+                                <FileUp size={15} />
+                                {t('home.import')}
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 <div className={styles.cameraList}>
                     {loading && (
@@ -185,42 +195,50 @@ const Home: React.FC = () => {
                             <span className={`${styles.cameraBadge} ${camera.status === 'OK' ? styles.cameraBadgeLive : styles.cameraBadgeOff}`}>
                                 {camera.status === 'OK' ? t('home.statusLive') : t('home.statusOff')}
                             </span>
-                            <div className={styles.menuWrapper} onClick={e => e.stopPropagation()}>
-                                <button
-                                    className={`${styles.menuTriggerBtn} ${openMenuId === camera.id ? styles.menuTriggerBtnActive : ''}`}
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        setOpenMenuId(openMenuId === camera.id ? null : camera.id);
-                                    }}
-                                >
-                                    <MoreHorizontal size={16} />
-                                </button>
-                                {openMenuId === camera.id && (
-                                    <div className={styles.contextMenu}>
-                                        <button
-                                            className={styles.menuItem}
-                                            onClick={() => { setZoneCamera(camera); setOpenMenuId(null); }}
-                                        >
-                                            <MapPin size={14} />
-                                            {t('home.addZone')}
-                                        </button>
-                                        <button
-                                            className={styles.menuItem}
-                                            onClick={() => { setEditingCamera(camera); setOpenMenuId(null); }}
-                                        >
-                                            <Pencil size={14} />
-                                            {t('home.edit')}
-                                        </button>
-                                        <button
-                                            className={`${styles.menuItem} ${styles.menuItemDelete}`}
-                                            onClick={() => { setDeletingCamera(camera); setOpenMenuId(null); }}
-                                        >
-                                            <Trash2 size={14} />
-                                            {t('home.delete')}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                            {showRowMenu && (
+                                <div className={styles.menuWrapper} onClick={e => e.stopPropagation()}>
+                                    <button
+                                        className={`${styles.menuTriggerBtn} ${openMenuId === camera.id ? styles.menuTriggerBtnActive : ''}`}
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            setOpenMenuId(openMenuId === camera.id ? null : camera.id);
+                                        }}
+                                    >
+                                        <MoreHorizontal size={16} />
+                                    </button>
+                                    {openMenuId === camera.id && (
+                                        <div className={styles.contextMenu}>
+                                            {canEditZone && (
+                                                <button
+                                                    className={styles.menuItem}
+                                                    onClick={() => { setZoneCamera(camera); setOpenMenuId(null); }}
+                                                >
+                                                    <MapPin size={14} />
+                                                    {t('home.addZone')}
+                                                </button>
+                                            )}
+                                            {canEditCamera && (
+                                                <button
+                                                    className={styles.menuItem}
+                                                    onClick={() => { setEditingCamera(camera); setOpenMenuId(null); }}
+                                                >
+                                                    <Pencil size={14} />
+                                                    {t('home.edit')}
+                                                </button>
+                                            )}
+                                            {canDeleteCamera && (
+                                                <button
+                                                    className={`${styles.menuItem} ${styles.menuItemDelete}`}
+                                                    onClick={() => { setDeletingCamera(camera); setOpenMenuId(null); }}
+                                                >
+                                                    <Trash2 size={14} />
+                                                    {t('home.delete')}
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
