@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, MapPin, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import styles from './ZoneEditorDialog.module.css';
-import { updateZone } from '../services/cameraService';
+import { updateZone, toggleZoneEnabled } from '../services/cameraService';
 import type { CameraRes, Zone } from '../types/camera';
 import { CONFIG } from '../configurations/configuration';
 import { videoContentRect } from '../utils/videoRect';
@@ -238,8 +238,23 @@ const ZoneEditorDialog: React.FC<ZoneEditorDialogProps> = ({ camera, onClose, on
         setDrawingPoints([]);
     };
 
-    const toggleZone = (i: number) =>
-        setZones(prev => prev.map((z, idx) => idx === i ? { ...z, enabled: !z.enabled } : z));
+    const toggleZone = async (i: number) => {
+        const target = zones[i];
+        if (!target) return;
+        const nextEnabled = !target.enabled;
+
+        setZones(prev => prev.map((z, idx) => idx === i ? { ...z, enabled: nextEnabled } : z));
+
+        if (!target.id) return;
+
+        try {
+            await toggleZoneEnabled(camera.id, target.id, nextEnabled);
+        } catch (err: unknown) {
+            setZones(prev => prev.map((z, idx) => idx === i ? { ...z, enabled: !nextEnabled } : z));
+            const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+            setError(message || 'Không thể đổi trạng thái vùng. Vui lòng thử lại.');
+        }
+    };
 
     const removeZone = (i: number) =>
         setZones(prev => prev.filter((_, idx) => idx !== i));

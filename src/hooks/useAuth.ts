@@ -45,7 +45,7 @@ export const useAuth = (): AuthInfo => {
         canEditCamera: adminOrConfigurator,
         canImportCamera: adminOrConfigurator,
         canDeleteCamera: isAdmin,
-        canEditZone: isAdmin,
+        canEditZone: adminOrConfigurator,
         canManageJobs: adminOrConfigurator,
         canManageOwnSubscription: adminOrConfigurator,
         canManageAllSubscriptions: isAdmin,

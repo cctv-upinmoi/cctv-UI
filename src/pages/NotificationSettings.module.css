@@ -175,7 +175,7 @@
 .table thead th {
     padding: 11px 20px;
     text-align: left;
-    font-size: 0.72rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -393,7 +393,7 @@
 }
 
 .drawerTitle { font-weight: 600; font-size: 0.95rem; color: var(--text-1); }
-.drawerSub   { font-size: 0.76rem; color: var(--text-4); margin-top: 2px; }
+.drawerSub   { font-size: 0.8125rem; color: var(--text-4); margin-top: 2px; }
 
 .drawerClose {
     width: 30px;
@@ -442,7 +442,7 @@
 }
 .optTag {
     margin-left: 8px;
-    font-size: 0.72rem;
+    font-size: 0.8125rem;
     font-weight: 400;
     color: var(--text-5);
     text-transform: none;
@@ -686,7 +686,7 @@
     border-radius: 10px;
     background: var(--bg-input);
     border: 1px solid var(--border);
-    font-size: 0.72rem;
+    font-size: 0.8125rem;
     color: var(--text-3);
 }
 .tabActive .tabCount {
@@ -746,7 +746,7 @@
 .table thead th {
     padding: 11px 20px;
     text-align: left;
-    font-size: 0.72rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;

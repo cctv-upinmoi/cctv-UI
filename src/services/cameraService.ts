@@ -20,6 +20,9 @@ export const deleteCamera = (id: string) =>
 export const updateZone = (data: { cameraId: string; zones: import('../types/camera').Zone[] }) =>
     httpClient.patch(`${API.CAMERAS}/update-zone`, data);
 
+export const toggleZoneEnabled = (cameraId: string, zoneId: string, enabled: boolean) =>
+    httpClient.patch(`${API.CAMERAS}/${cameraId}/zones/${zoneId}/enabled`, { enabled });
+
 export const importCameras = (file: File) => {
     const form = new FormData();
     form.append('file', file);

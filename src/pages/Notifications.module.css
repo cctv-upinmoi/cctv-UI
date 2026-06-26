@@ -174,7 +174,7 @@
     color: var(--text-4);
     padding: 1px 6px;
     border-radius: 999px;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
 }
 
@@ -346,7 +346,7 @@
 }
 
 .badge {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
     padding: 2px 8px;
     border-radius: 999px;
@@ -487,7 +487,7 @@
 .infoContent { display: flex; flex-direction: column; gap: 3px; }
 
 .infoLabel {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-5);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -510,7 +510,7 @@
 .confHeader { display: flex; justify-content: space-between; align-items: center; }
 
 .confLabel {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-5);
     text-transform: uppercase;
     letter-spacing: 0.5px;

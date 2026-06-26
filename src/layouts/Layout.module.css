@@ -42,10 +42,10 @@
 }
 
 .brand {
-    font-size: 14px;
-    font-weight: 700;
+    font-size: var(--fs-base);
+    font-weight: var(--fw-bold);
     color: var(--text-1);
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
     white-space: nowrap;
     overflow: hidden;
 }
@@ -88,8 +88,8 @@
     border-radius: 8px;
     color: var(--text-3);
     text-decoration: none;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
     white-space: nowrap;
     transition: background 0.15s, color 0.15s;
 }
@@ -146,8 +146,8 @@
     border: none;
     color: var(--text-4);
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
     width: 100%;
     transition: background 0.15s, color 0.15s;
     white-space: nowrap;
@@ -210,8 +210,8 @@
     border: none;
     color: var(--text-3);
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--fs-md);
+    font-weight: var(--fw-medium);
     width: 100%;
     transition: background 0.15s, color 0.15s;
     white-space: nowrap;
@@ -242,15 +242,15 @@
     right: -8px;
     background: var(--danger);
     color: #fff;
-    font-size: 9px;
-    font-weight: 700;
-    min-width: 16px;
-    height: 16px;
+    font-size: 10px;
+    font-weight: var(--fw-bold);
+    min-width: 18px;
+    height: 18px;
     border-radius: 999px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 3px;
+    padding: 0 4px;
     line-height: 1;
     pointer-events: none;
 }

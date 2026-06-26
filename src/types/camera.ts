@@ -7,6 +7,7 @@ export interface LocationDetail {
 }
 
 export interface Zone {
+  id?: string;
   name: string;
   type: 'INTRUSION' | 'LOITERING' | 'LINE_CROSSING';
   enabled: boolean;
